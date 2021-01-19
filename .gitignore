@@ -4,4 +4,4 @@
 .Ruserdata
 *.dta
 *.csv
-\figures\
+*-1.pdf
