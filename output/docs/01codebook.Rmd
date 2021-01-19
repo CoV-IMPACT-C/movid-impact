@@ -1,0 +1,61 @@
+---
+title: "MOVID-IMPACT survey - Codebook"
+subtitle: 'ANID-COVID N°960 “CoV-IMPACT-C”'
+author: "Valentina Andrade"
+lang: es-CL
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 4
+    toc_float: true
+    self_contained: true
+  pdf_document:
+    toc: yes
+    toc_depth: 4
+    latex_engine: xelatex
+---
+```{r setup, echo = F}
+knitr::opts_chunk$set(warning = F,  message = T,error = T)
+ggplot2::theme_set(ggplot2::theme_bw())
+pander::panderOptions("table.split.table", Inf)
+```
+
+```{r load, echo = F, error = FALSE}
+pacman::p_load(codebook)
+codebook_data <- readRDS("../../output/data/movid_o.RDS")
+```
+
+----
+
+En el siguiente documento se presenta un descriptivo por cada uno de los datos, junto con un libro de códigos final
+
+```{r codebook, echo = F}
+# omit the following lines, if your missing values are already properly labelled
+codebook_data <- detect_missing(codebook_data,
+    only_labelled = TRUE, # only labelled values are autodetected as
+                                   # missing
+    negative_values_are_missing = FALSE, # negative values are NOT missing values
+    ninety_nine_problems = TRUE   # 99/999 are missing values, if they
+                                   # are more than 5 MAD from the median
+    )
+# If you are not using formr, the codebook package needs to guess which items
+# form a scale. The following line finds item aggregates with names like this:
+# scale = scale_1 + scale_2R + scale_3R
+# identifying these aggregates allows the codebook function to
+# automatically compute reliabilities.
+# However, it will not reverse items automatically.
+codebook_data <- detect_scales(codebook_data)
+
+
+# Does your dataset have a name that is not reflected in the file name?
+# Uncomment the line below and change the name
+metadata(codebook_data)$name <- "MOVID-IMPACT"
+
+```
+
+
+```{r, echo = F}
+codebook(codebook_data, detailed_variables = T, detailed_scales = T)
+```
+
