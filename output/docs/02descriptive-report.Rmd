@@ -1,0 +1,35 @@
+---
+  title: "MOVID-IMPACT survey - Descriptive Report"
+subtitle: 'ANID-COVID N°960 “CoV-IMPACT-C”'
+author: "Valentina Andrade"
+lang: es-CL
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+  toc: true
+toc_depth: 4
+toc_float: true
+self_contained: true
+pdf_document:
+  toc: yes
+toc_depth: 4
+latex_engine: xelatex
+---
+
+# Presentación
+
+# Módulo A. Sociodemográfico
+
+# Módulo B. Otras variables sociodemográficas
+
+# Módulo C. Preexistencias
+
+# Modulo D. Acceso a la Salud por COVID-19
+
+# Modulo E. Acceso a la Salud por problemas no COVID-19
+
+# Modulo F. Prácticas y percepciones sociales en la pandemia
+
+# Modulo G. Empleo
+
+# Modulo V. Vacuna COVID-19
