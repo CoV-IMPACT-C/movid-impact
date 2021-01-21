@@ -9,78 +9,278 @@ movid_i <- movid_o
 
 # 3. Recodes -----------------------------------------------------
 
-# Identificacion ----------------------------------------------------------
+# Modulo A ----------------------------------------------------------------
+movid_i <- movid_i %>% mutate_at(vars(contains("a"), sexo, edad), funs(as.numeric(.)))
+
+# A_1 Identificacion ----------------------------------------------------------
 movid_i$entrevistado <- ifelse(is.na(movid_i$entrevistado), 0, 1)
 
-# Modulo A ----------------------------------------------------------------
-# 2.1 Sex -----------------------------------------------------------------
-movid_i$sexo <- as.numeric(movid_i$sexo)
+# A_2 Sexo -----------------------------------------------------------------
 movid_i$sexo <- car::recode(movid_i$sexo, c("1='Hombre';2='Mujer'"), as.factor = T,
                             levels = c("Hombre", "Mujer"))
-#  2.2 Age -----------------------------------------------------------------
-## Edad
-str(movid_i$edad) # num
+# A_3 Age -----------------------------------------------------------------
+## Edad (numerica)
 
-## Edad_3cat
-movid_i$edad_3cat <- ifelse(movid_i$edad<40, "18 a 39",
-                            ifelse(movid_i$edad<65 & movid_i$edad>39, "40 a 64",
-                                   ifelse(movid_i$edad>64, "65 y más", NA)))
+## Edad en tres categorías
+movid_i$edad_3cat <- car::recode(movid_i$edad, c("0:39='18 a 39';40:64='40 a 64';65:hi='65 y más'"), as.factor = T,
+                            levels = c("18 a 39", "40 a 64", "65 y más"))
 
-movid_i$edad_3cat <- as_factor(movid_i$edad_3cat)
+table(movid_i$edad_3cat)
 
+## Edad en cuatro categorías
+movid_i$edad_cat <- car::recode(movid_i$edad, c("0:29='18 a 29';30:39='30 a 39';40:49='40 a 49';50:59='50 a 59';60:69='60 a 69';70:79='70 a 79';80:hi='80+'"), as.factor = T,
+                                 levels = c("18 a 29", "30 a 39","40 a 49","50 a 59","60 a 69","70 a 79", "80+"))
 
-# 2.4 Education ---------------------------------------------------------------
-# Education: 3 categories: High school or less, Technical qualification and University degree
+table(movid_i$edad_cat)
+
+## Edad adultos mayores
+movid_i$edad_65 <- car::recode(movid_i$edad, c("0:64='No Adulto Mayor';65:hi='Adulto Mayor'"), as.factor = T,
+                                levels = c("Adulto Mayor","No Adulto Mayor"))
+
+table(movid_i$edad_65)
+
+# A4 Relacion Jefe Hogar -------------------------------------------------
+table(movid_i$a4)
+movid_i$a4 <- car::recode(movid_i$a4, c("1='Jefe de Hogar';2='Cónyuge o pareja';3='Hijo(a)';4='Padre o madre';5='Suegro(a)';6='Yerno o nuera';7='Nieto(a)';8='Hermano(a)';9='Cuñado(a)';10='Otro Familiar';11='Otro no familiar';12='S. Doméstico P. Adentro'"), as.factor = T,
+                                levels = c('Jefe de Hogar', 'Cónyuge o pareja','Hijo(a)','Padre o madre','Suegro(a)','Yerno o nuera', 'Nieto(a)', 'Hermano(a)', 'Cuñado(a)', 'Otro Familiar', 'Otro no familiar','S. Doméstico P. Adentro'))
+
+table(movid_i$a4)
+
+# A5 Relacion con entrevistado -------------------------------------------
+table(movid_i$a5)
+movid_i$a5 <- car::recode(movid_i$a5, c("1='Entrevistado(a)';2='Cónyuge o pareja';3='Hijo(a)';4='Padre o madre';5='Suegro(a)';6='Yerno o nuera';7='Nieto(a)';8='Hermano(a)';9='Cuñado(a)';10='Otro Familiar';11='Otro no familiar';12='S. Doméstico P. Adentro'"), as.factor = T,
+                          levels = c('Entrevistado(a)', 'Cónyuge o pareja','Hijo(a)','Padre o madre','Suegro(a)','Yerno o nuera', 'Nieto(a)', 'Hermano(a)', 'Cuñado(a)', 'Otro Familiar', 'Otro no familiar','S. Doméstico P. Adentro'))
+
+table(movid_i$a5)
+
+# A6 Estado civil -------------------------------------------
+table(movid_i$a6)
+movid_i$a6 <- car::recode(movid_i$a6, c("1='Casado(a)';2='Conviviente o pareja';3='Anulado(a)';4='Separado(a)';5='Divorciado(a)';6='Viudo(a)';7='Soltero(a)'"), as.factor = T,
+                          levels = c('Casado(a)', 'Conviviente o pareja','Anulado(a)','Separado(a)','Divorciado(a)','Viudo(a)', 'Soltero(a)'))
+
+table(movid_i$a6)
+
+# A8 Education ---------------------------------------------------------------
+# A7 Asistir a educacion -------------------------------------------------------
+table(movid_i$a7)
+movid_i$a7 <- car::recode(movid_i$a7, c("1='Sí';2='No'"), as.factor = T,
+                               levels = c("Sí","No"))
+
+table(movid_i$a7)
+
+# A8A Nivel mas alto alcanzado -------------------------------------------
+
+# Nivel Educacion 3 categorias --------------------------------------------------
+# 3 categories: High school or less, Technical qualification and University degree
 table(movid_i$a8a)
-movid_i$educ_3cat <- as.numeric(movid_i$a8a)
-movid_i$educ_3cat <- car::recode(movid_i$educ_3cat, c("c(1,2,3,4,5,6)='Media o menos';7='Técnica';c(8,9)='Profesional';99=NA"), as.factor = T,
+movid_i$educ_3cat <- car::recode(movid_i$a8a, c("c(1,2,3,4,5,6)='Media o menos';7='Técnica';c(8,9)='Profesional';99=NA"), as.factor = T,
                                  levels = c("Media o menos", "Profesional", 'Técnica'))
 
 table(movid_i$educ_3cat)
 
-# 2.5 Worker ------------------------------------------------------------------
-movid_i$trabaja <- as.numeric(movid_i$g1)
-movid_i$trabaja <- car::recode(movid_i$trabaja, c("1='Si'; 2='No'"), as.factor = T)
+# Nivel Educacion 4 categorias --------------------------------------------------
+# 4 categories: Primary or less, High school,Technical qualification and University degree
+table(movid_i$a8a)
+movid_i$educ_4cat <- car::recode(movid_i$a8a, c("c(1,2,3,4)='Básica o menos';c(5,6)='Media';7='Técnica';c(8,9)='Profesional';99=NA"), as.factor = T,
+                                 levels = c("Básica o menos","Media", "Profesional", 'Técnica'))
 
-# Worker (g1 or/type g10)
+table(movid_i$educ_4cat)
 
-# 2.6 Health risk -------------------------------------------------------------
+
+# Nivel educacional 9 cat -------------------------------------------------------
+table(movid_i$a8a)
+movid_i$a8a <- car::recode(movid_i$a8a, c("1='Nunca asistió';2='Preescolar';3='Especial (Diferencial)';4='Básica';5='Media Científico-Humanista';6='Media Técnica-Profesional';7='Superior Técnica (en CFT o I. Profesional)';8='Superior Universitaria (Pregrado)';9='Postgrado';99=NA"), as.factor = T,
+                          levels = c('Nunca asistió', 'Preescolar','Especial (Diferencial)','Básica','Media Científico-Humanista','Media Técnica-Profesional', 'Superior Técnica (en CFT o I. Profesional)', 'Superior Universitaria (Pregrado)','Postgrado'))
+
+table(movid_i$a8a)
+
+# A8b Nivel mas alto alcanzado Ano -------------------------------------------
+table(movid_i$a8b)
+movid_i$a8a[movid_i$a8a == 99] <- NA
+table(movid_i$a8a)
+
+# A9 Duracion pregrado -------------------------------------------
+table(movid_i$a9)
+movid_i$a9[movid_i$a9 == 99] <- NA
+table(movid_i$a9)
+
+
+# Modulo B. Otras variables demograficas ----------------------------------
+movid_i <- movid_i %>% mutate_at(vars(contains("b")), funs(as.numeric(.)))
+
+# B1 Pueblo originario -------------------------------------------------------
+table(movid_i$b1)
+movid_i$b1 <- car::recode(movid_i$b1, c("1='Sí';2='No'; c(8,9)=NA"), as.factor = T,
+                          levels = c("Sí","No"))
+table(movid_i$b1)
+
+
+# B2 Prevision salud  --------------------------------------------------------
+
+# Prevision general (b2) --------------------------------------------------
+table(movid_i$b2)
+movid_i$b2 <- car::recode(movid_i$b2, c("1='FONASA';2='ISAPRE';3='Fuerzas Armadas y de Orden';4='Otro';5='Ninguna';c(8,9)=NA"), as.factor = T,
+                                     levels = c("FONASA", "ISAPRE", 'Fuerzas Armadas y de Orden', 'Otro', 'Ninguna' ))
+
+table(movid_i$b2)
+
+# Prevision 2 categorias --------------------------------------------------
+movid_i$prev_2categ <- car::recode(movid_i$b2, c("1='FONASA';2='ISAPRE';4='Otro';hi=NA"), as.factor = T,
+                                   levels = c("FONASA", "ISAPRE", 'Otro'))
+
+table(movid_i$prev_2categ)
+
+# Prevision 4 categorias --------------------------------------------------
+movid_i$prev_4categ <- car::recode(movid_i$b2, c("1='FONASA';2='ISAPRE';4='Otro';5='Ninguna';hi=NA"), as.factor = T,
+                                   levels = c("FONASA", "ISAPRE", 'Otro', 'Ninguna'))
+
+table(movid_i$prev_4categ)
+
+# B3 Establecimiento última atencion --------------------------------------
+table(movid_i$b3)
+movid_i <- movid_i %>% mutate(b3_tipo = case_when(b3 %in% c(1:7,15) ~ "Público",
+                                                  b3 %in% c(8,9,10,12,16) ~ "Privada",
+                                                  b3 %in% c(11,13,14,17) ~ "Otro",
+                                                  TRUE ~ NA_character_))
+
+movid_i$b3 <- car::recode(movid_i$b3, c("1='Consultorio general';
+                                        2='Posta rural';
+                                        3='CRS o CDT';
+                                        4='COSAM';
+                                        5='SAPU';
+                                        6='Posta';
+                                        7 ='Hospital público o del SNSS';
+                                        8='Consulta o centro médico privado';
+                                        9='Clínica u hospital privado';
+                                        10='Centro de salud mental privado';
+                                        11= 'Establecimiento de las FF.AA. o del Orden';
+                                        12='Servicio de urgencia de clínica u hospital privado';
+                                        13='Mutual de Seguridad';
+                                        14='Servicio médico de alumnos del lugar en que estudia';
+                                        15='Telemedicina por consultorio u hospital público';
+                                        16='Telemedicina por centro médico o clinica privada';
+                                        17 ='Otro';
+                                        c(98,99)=NA"), as.factor = T,
+                          levels = c('Consultorio general',
+                                     'Posta rural',
+                                     'CRS o CDT',
+                                     'COSAM',
+                                     'SAPU',
+                                     'Posta',
+                                     'Hospital público o del SNSS',
+                                     'Consulta o centro médico privado',
+                                     'Clínica u hospital privado',
+                                     'Centro de salud mental privado',
+                                     'Servicio de urgencia de clínica u hospital privado',
+                                     'Mutual de Seguridad',
+                                     'Servicio médico de alumnos del lugar en que estudia',
+                                     'Telemedicina por consultorio u hospital público',
+                                     'Telemedicina por centro médico o clinica privada',
+                                     'Otro'))
+
+table(movid_i$b3)
+table(movid_i$b3_tipo)
+
+# Modulo C. Preexistencias ------------------------------------------------
+movid_i <- movid_i %>% mutate_at(vars(contains("c"), -c1_6_esp), funs(as.numeric(.)))
+
+# C1_* Enfermedades cronicas ----------------------------------------------
+# C1_1 Diabetes -----------------------------------------------------------
+movid_i$c1_1 <- ifelse(is.na(movid_i$c1_1), 0, 1)
+# C1_2 Hipertension -----------------------------------------------------------
+movid_i$c1_2 <- ifelse(is.na(movid_i$c1_2), 0, 1)
+# C1_3 Cardiovascular -----------------------------------------------------------
+movid_i$c1_3 <- ifelse(is.na(movid_i$c1_3), 0, 1)
+# C1_4 Respiratoria -----------------------------------------------------------
+movid_i$c1_4 <- ifelse(is.na(movid_i$c1_4), 0, 1)
+# C1_5 Mental -----------------------------------------------------------
+movid_i$c1_5 <- ifelse(is.na(movid_i$c1_5), 0, 1)
+# C1_6 Otra -----------------------------------------------------------
+movid_i$c1_6 <- ifelse(is.na(movid_i$c1_6), 0, 1)
+# C1_7 Sano -----------------------------------------------------------
+movid_i$c1_7 <- ifelse(is.na(movid_i$c1_7), 0, 1)
+# C1_9 NA -----------------------------------------------------------
+movid_i$c1_8 <- ifelse(is.na(movid_i$c1_8), 0, 1)
+movid_i$c1_9 <- ifelse(is.na(movid_i$c1_9), 0, 1)
+
+
 # Health risk: arterial hypertension, obesity, diabetes, chronic respiratory diseases (asthma, emphysema or other), cardiovascular diseases, active cancer, chronic kidney disease or immunodeficiencies
 ## Health risk General
 table(movid_i$c1_9)
 movid_i <- movid_i %>% mutate(cronicos = case_when(c1_1 == 1 ~ 1,
-                                                   c1_2 == 2 ~ 1,
-                                                   c1_3 == 3 ~ 1,
-                                                   c1_4 == 4 ~ 1,
-                                                   c1_5 == 5 ~ 1,
+                                                   c1_2 == 1 ~ 1,
+                                                   c1_3 == 1 ~ 1,
+                                                   c1_4 == 1 ~ 1,
+                                                   c1_5 == 1 ~ 1,
                                                    c1_6_esp == "artritis" ~ 1,
-                                                   c1_7 == 7 ~ 1,
-                                                   c1_8 == 8 ~ NA_real_,
-                                                   c1_9 == 9 ~ NA_real_,
-                                                   TRUE ~ 0)) %>%
-  mutate(cronicos = if_else(cronicos == 1, "Si", "No"))
+                                                   c1_7 == 0 ~ 1,
+                                                   c1_8 == 1 ~ NA_real_,
+                                                   c1_9 == 1 ~ NA_real_)) %>%
+  mutate(cronicos = if_else(cronicos == 1, "Sí", "No"))
+
+movid_i$cronicos <- ifelse(movid_i$c1_1 == 1|
+                             movid_i$c1_2 == 1|
+                             movid_i$c1_3 == 1|
+                             movid_i$c1_4 == 1|
+                             movid_i$c1_5 == 1|
+                             movid_i$c1_6_esp == "artritis"|
+                             movid_i$c1_7 == 0|
+                             !is.na(movid_i$c1_8)|
+                             !is.na(movid_i$c1_9), 1,0)
 
 table(movid_i$cronicos) ## Artritis
-178+339+48+91+161+567+7
-# 2.7 Health insurance --------------------------------------------------------
-## Prev General
-table(movid_i$b2)
-movid_i$pr2_prevision <- as.numeric(movid_i$b2)
-movid_i$pr2_prevision <- car::recode(movid_i$pr2_prevision, c("1='FONASA';2='ISAPRE';3='Fuerzas Armadas y de Orden';4='Otro';5='Ninguna';c(8,9)=NA"), as.factor = T,
-                                     levels = c("FONASA", "ISAPRE", 'Fuerzas Armadas y de Orden', 'Otro', 'Ninguna' ))
+178+339+48+91+161+7
 
-table(movid_i$pr2_prevision)
+# C2 Sintomas Salud Mental ----------------------------------------------------------------
 
-## Prev recodificaciones
-movid_i$prev_2categ <- as.factor(ifelse(movid_i$pr2_prevision=="FONASA",0,
-                                        ifelse(movid_i$pr2_prevision=="ISAPRE",1,2)))
-levels(movid_i$prev_2categ) <- c("FONASA","ISAPRE", "Otro")
+# C2_1 Nervioso -----------------------------------------------------------
+table(movid_i$c2_1)
+movid_i$c2_1 <- car::recode(movid_i$c2_1, c("1='Nunca';2='Varios días';3='Más de la mitad de los días';4='Casi todos los días';hi=NA"), as.factor = T,
+                                   levels = c('Nunca', 'Varios días', 'Más de la mitad de los días', 'Casi todos los días'))
+
+table(movid_i$c2_1)
+# C2_2 Angustia -----------------------------------------------------------
+table(movid_i$c2_2)
+movid_i$c2_2 <- car::recode(movid_i$c2_2, c("1='Nunca';2='Varios días';3='Más de la mitad de los días';4='Casi todos los días';hi=NA"), as.factor = T,
+                            levels = c('Nunca', 'Varios días', 'Más de la mitad de los días', 'Casi todos los días'))
+table(movid_i$c2_2)
+
+# C2_3 Deprimido -----------------------------------------------------------
+table(movid_i$c2_3)
+movid_i$c2_3 <- car::recode(movid_i$c2_3, c("1='Nunca';2='Varios días';3='Más de la mitad de los días';4='Casi todos los días';hi=NA"), as.factor = T,
+                            levels = c('Nunca', 'Varios días', 'Más de la mitad de los días', 'Casi todos los días'))
+table(movid_i$c2_3)
+
+# C2_4 Desmotivacion -----------------------------------------------------------
+table(movid_i$c2_4)
+movid_i$c2_4 <- car::recode(movid_i$c2_4, c("1='Nunca';2='Varios días';3='Más de la mitad de los días';4='Casi todos los días';hi=NA"), as.factor = T,
+                            levels = c('Nunca', 'Varios días', 'Más de la mitad de los días', 'Casi todos los días'))
+table(movid_i$c2_4)
 
 
-movid_i$prev_4categ <- as.factor(ifelse(movid_i$pr2_prevision=="Ninguna",0,
-                                        ifelse(movid_i$pr2_prevision=="FONASA",1,
-                                               ifelse(movid_i$pr2_prevision=="ISAPRE",2,3))))
-levels(movid_i$prev_4categ) <- c("Ninguna","FONASA","ISAPRE", "Otro")
+# Modulo D Acceso a Salud COVID-19 ----------------------------------------
+
+# D1 Sospechoso -----------------------------------------------------------
+
+# D2 Sospechoso2 ----------------------------------------------------------
+
+# D3_* Sintomas -----------------------------------------------------------
+
+# D4 Consulta -------------------------------------------------------------
+
+# D5 No consulta ----------------------------------------------------------
+
+# D6 Diagnostico ----------------------------------------------------------
+
+# D7 Licencia ----------------------------------------------------------------------
+
+# D8 Hospitalizado ----------------------------------------------------------------------
+
+# D9 Long COVID -----------------------------------------------------------
+
+
+
+
 
 
 # Modulo F ----------------------------------------------------------------
@@ -212,6 +412,13 @@ movid_i$nocumple_normas <- ifelse(movid_i$normas=="Nada" | movid_i$normas=="Poco
 
 
 # G. Module: Employment -----------------------------------------------------------
+
+# 2.5 Worker ------------------------------------------------------------------
+movid_i$trabaja <- as.numeric(movid_i$g1)
+movid_i$trabaja <- car::recode(movid_i$trabaja, c("1='Si'; 2='No'"), as.factor = T)
+
+# Worker (g1 or/type g10)
+
 # 2.8 Lack income due COVID ---------------------------------------------------
 # Worker
 table(movid_i$g18)
@@ -234,6 +441,7 @@ movid_i <- movid_i %>% filter(a5 == 1)
 movid_o <- movid_o %>% filter(a5 == 1)
 
 # 5. Save  -----------------------------------------------------------------
-saveRDS(movid_i, file = "output/data/movid_i.RDS")
+saveRDS(movid_i, file = "output/data/movid_i_proc.RDS")
+#saveRDS(movid_i, file = "output/data/movid_i.RDS")
 saveRDS(movid_o, file = "output/data/movid_o.RDS")
 save(movid_i,movid_o, file = "output/data/movid_impact.RData")
