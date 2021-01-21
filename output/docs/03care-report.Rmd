@@ -319,7 +319,7 @@ movid_i %>% group_by(g18) %>%
 
 - *¿Ha recibido ayuda de alguna iniciativa comunitaria?*
 
-**Gráfico 13**. Percepción de reducción de ingresos en general
+**Gráfico 13**. Proporción de personas que han recibido ayuda comunitaria
 
 ```{r communitary, echo = F}
 movid_i %>% group_by(f4_3) %>% 
