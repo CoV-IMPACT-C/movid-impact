@@ -8,7 +8,6 @@ movid_o <- haven::read_dta("input/data/210119_base_movid_version01.dta")
 movid_i <- movid_o
 
 # 3. Recodes -----------------------------------------------------
-
 # Modulo A ----------------------------------------------------------------
 movid_i <- movid_i %>% mutate_at(vars(starts_with("a"), sexo, edad), funs(as.numeric(.)))
 
@@ -20,7 +19,6 @@ movid_i$sexo <- car::recode(movid_i$sexo, c("1='Hombre';2='Mujer'"), as.factor =
                             levels = c("Hombre", "Mujer"))
 # A_3 Age -----------------------------------------------------------------
 ## Edad (numerica)
-
 ## Edad en tres categorías
 movid_i$edad_3cat <- car::recode(movid_i$edad, c("0:39='18 a 39';40:64='40 a 64';65:hi='65 y más'"), as.factor = T,
                             levels = c("18 a 39", "40 a 64", "65 y más"))
@@ -98,6 +96,7 @@ table(movid_i$a8a)
 table(movid_i$a8b)
 movid_i$a8a[movid_i$a8a == 99] <- NA
 table(movid_i$a8a)
+
 
 # A9 Duracion pregrado -------------------------------------------
 table(movid_i$a9)
@@ -319,12 +318,11 @@ table(movid_i$d3_snt_disgeusia)
 # d3_snt_null -----------------------------------------------------------
 movid_i$d3_snt_null <- ifelse(movid_i$d3_1 == 2&movid_i$d3_2 == 2&movid_i$d3_3 == 2&movid_i$d3_4 == 2&movid_i$d3_5 == 2&
                               movid_i$d3_6 == 2& movid_i$d3_7 == 2&movid_i$d3_8 == 2&movid_i$d3_9 == 2& movid_i$d3_10 == 2,"Sí", "No")
-
 # D4 Consulta -------------------------------------------------------------
 table(movid_i$d4)
 movid_i$d4 <- car::recode(movid_i$d4, c("1='Sí';2='No'; c(8,9)=NA"), as.factor = T,
                                         levels = c("Sí","No"))
-table(movid_i$d3_snt_disgeusia)
+table(movid_i$d4)
 
 # D5 No consulta ----------------------------------------------------------
 table(movid_i$d5)
@@ -521,8 +519,7 @@ table(movid_i$e5_posp_otra)
 
 # e5_posp_null ---------------------------------------------------------
 movid_i$e5_posp_null <- ifelse(movid_i$e5_1 == 2&movid_i$e5_2 == 2&movid_i$e5_3 == 2&movid_i$e5_4 == 2&movid_i$e5_5 == 2&
-                                movid_i$e5_6 == 2& movid_i$e5_7 == 2&movid_i$e5_8 == 2&movid_i$e5_9 == 2& movid_i$e5_10 == 2,"Sí", "No")
-
+                                movid_i$e5_6 == 2& movid_i$e5_7 == 2&movid_i$e5_8 == 2&movid_i$e5_9 == 2,"Sí", "No")
 
 
 # E6 Razon para posponer -----------------------------------------
@@ -603,7 +600,7 @@ table(movid_i$f1)
 
 ## Horas
 summary(movid_i$f1_horas)
-
+movid_i$f1_horas <- as.numeric(movid_i$f1_horas)
 # F2 Trabajo cuidados -----------------------------------------------------
 ## Nivel
 table(movid_i$f2)
@@ -613,6 +610,7 @@ table(movid_i$f2)
 
 ##Horas
 summary(movid_i$f2_horas)
+movid_i$f2_horas <- as.numeric(movid_i$f2_horas)
 
 # F3. Percepciones y legitimidad  -----------------------------------------------
 # F3_1 Percepcion desigualdad f3_desigualdad  ---------------------------------------------
@@ -695,10 +693,10 @@ table(movid_i$f5_motivacion)
 # F5_4. Dificult protect  (f5_protect) --------------------------------------------
 ### Resulta cada vez más difícil seguir las medidas de protección sin que esto afecte de manera negativa mi vida (f5_4)
 table(movid_i$f5_4)
-movid_i$f5_protect <- car::recode(movid_i$f5_4, c("1='Muy de acuerdo';2='De acuerdo';3='Indiferente';4='En desacuerdo';5='Muy en desacuerdo';c(8,9)=NA"), as.factor = T,
+movid_i$f5_difprotect <- car::recode(movid_i$f5_4, c("1='Muy de acuerdo';2='De acuerdo';3='Indiferente';4='En desacuerdo';5='Muy en desacuerdo';c(8,9)=NA"), as.factor = T,
                             levels = c("Muy de acuerdo", "De acuerdo", "Indiferente", "En desacuerdo", "Muy en desacuerdo"))
 
-table(movid_i$f5_protect)
+table(movid_i$f5_difprotect)
 
 # F5_5. Legal enforcement  (f5_legal) --------------------------------------------
 ### En Chile, si una persona sale sin permiso durante una cuarentena es muy poco probable que sea controlado y multado.
@@ -734,6 +732,7 @@ movid_i$bajo_riesgo <-  ifelse(movid_i$f6 == "Nada peligroso"     | movid_i$f6 =
 
 # F7_1 Lavarse las manos (f7_wash) ----------------------------------------
 table(movid_i$f7_1)
+
 movid_i$f7_wash <- car::recode(movid_i$f7_1, c("1='Casi nunca';2='A veces';3='Frecuentemente';4='Casi siempre';5='Siempre';c(8,9)=NA"), as.factor = T,
                             levels = c("Casi nunca", "A veces", "Frecuentemente", "Casi siempre", "Siempre"))
 table(movid_i$f7_wash)
@@ -761,19 +760,19 @@ table(movid_i$f7_mask2)
 
 ## Alto cumplimiento (alto cumplimiento)  ---------------------------------------------------
 
-movid_i <- movid_i %>% mutate(alto_cumplimiento = case_when(f7_1 %in%  c('Casi siempre', 'Siempre')~ 1,
-                                               f7_2 %in%  c('Casi siempre', 'Siempre')~ 1,
-                                               f7_3 %in%   c('Casi siempre', 'Siempre')~ 1,
-                                               f7_4 %in%  c('Casi siempre', 'Siempre')~ 1,
-                                               f7_5 %in% c('Casi siempre', 'Siempre')~ 1,
+movid_i <- movid_i %>% mutate(alto_cumplimiento = case_when(f7_wash %in%  c('Casi siempre', 'Siempre')~ 1,
+                                               f7_social %in%  c('Casi siempre', 'Siempre')~ 1,
+                                               f7_distance %in%   c('Casi siempre', 'Siempre')~ 1,
+                                               f7_mask %in%  c('Casi siempre', 'Siempre')~ 1,
+                                               f7_mask2 %in% c('Casi siempre', 'Siempre')~ 1,
                                                TRUE ~ 0))
 
-table(movid_i$comp)
+table(movid_i$alto_cumplimiento)
 
 # F8. Percepcion del cumplimiento de medidas (f8) ----------------------------------------------
 ### Pensando en distintas medidas de cuidado ante el coronavirus (quedarse en casa, usar     mascarilla, mantener distanciamiento social o lavarse las manos). ¿En qué medida diría Ud.     que su círculo cercano (personas que viven con Ud. o su familia cercana) cumple estas     recomendaciones?
 table(movid_i$f8)
-movid_if8 <- car::recode(movid_i$f8, c("1='Completamente';2='En gran medida';3='Bastante';4='Algo';5='Poco';6 ='Nada';c(8,9)=NA"), as.factor = T,
+movid_i$f8 <- car::recode(movid_i$f8, c("1='Completamente';2='En gran medida';3='Bastante';4='Algo';5='Poco';6 ='Nada';c(8,9)=NA"), as.factor = T,
                               levels = c("Completamente", "En gran medida", "Bastante", "Algo", "Poco", "Nada"))
 
 table(movid_i$f8) #es normas en movid
@@ -781,10 +780,39 @@ table(movid_i$f8) #es normas en movid
 ## Percepcion del cumplimiento de normas
 movid_i$cumple_normas <- ifelse(movid_i$f8=="Completamente" | movid_i$f8=="En gran medida",1,0)
 movid_i$nocumple_normas <- ifelse(movid_i$f8=="Nada" | movid_i$f8=="Poco" | movid_i$f8=="Algo",1,0)
-
+table(movid_i$cumple_normas)
 
 # Modulo G: Empleo  -----------------------------------------------------------
 movid_i <- movid_i %>% mutate_at(vars(starts_with("g"), -ends_with("_esp")), funs(as.numeric(.)))
+
+# Especiales modulo empleo  -----------------------------------------------------------------
+
+# CAE  --------------------------------------------------------------------
+movid_i <- movid_i %>% mutate(cae = case_when(g1 == 1 ~ "Ocupado",
+                                              g1 == 2 & g5 == 1 ~ "Desocupado",
+                                              g1 == 2 & g5 == 2 ~ "Inactivo"),
+                              cae_covid = case_when(g1 == 1 ~ "Ocupado",
+                                                    g1 == 2 & g3 %in% c(4,5,6,7,8,9) ~ "Ocupado ausente",
+                                                    g1 == 2 & g3 %in% c(1,2,3) ~ "Ocupado ausente por pandemia",
+                                                    g1 == 2 & g5 == 2 & g6b == 1 ~ "Desocupado por pandemia",
+                                                    g1 == 2 & g5 == 2 & g6b == 2 ~ "Inactivo por pandemia"))
+
+table(movid_i$cae)
+table(movid_i$cae_covid)
+
+### Desocupacion por pandemia (GB == 1 | G3 %in% c(1,2,3))
+### Inactividad por pandemia (G6B == 2)
+### Ocupados ausentes (G3 =/= 10)
+
+##CISE (g10)
+
+## Ingreso del hogar per capita (ingh_p) ------------------------------------
+###g47 (ingresos = ingresos autonomos + transferencias)
+### No excluí a los 7 casos que ganan 0
+hogares <- movid_i %>% group_by(id_encuesta) %>% summarise(nhogar = n())
+movid_i <- movid_i %>% mutate(g47 = if_else(g47 == 1, 1, NA_real_)) %>% 
+  merge(hogares, by = "id_encuesta", all.x = T) %>% 
+  mutate(ingh_p =  g47_monto/nhogar)
 
 # Condicion de Actividad Economica (CAE) ----------------------------------------
 # G1 Trabajar -------------------------------------------------------------
@@ -861,11 +889,6 @@ movid_i$g6b <- car::recode(movid_i$g6b, c("1='Sí'; 2='No'"), as.factor = T,
                           levels = c('Sí', 'No'))
 table(movid_i$g6b)
 
-# Propias -----------------------------------------------------------------
-##CAE
-##CISE
-##Razon desocupacion covid y no covid
-
 # Situacion de Empleo (CISE) ----------------------------------------------
 # Ocupados G8-G18 ---------------------------------------------------------
 # G8 CIUO -----------------------------------------------------------------
@@ -879,9 +902,7 @@ movid_i$g18 <- car::recode(movid_i$g18, c("1='Ha bajado';2='Se ha mantenido igua
                            levels = c("Ha bajado", "Se ha mantenido igual", "Ha subido"))
 table(movid_i$g18)
 
-
 # CESANTES G31  -------------------------------------------------------
-
 
 
 # G49 Lack income todos ---------------------------------------------------
@@ -922,7 +943,6 @@ table(movid_i$v2_1)
 movid_i$v2_efectos <- ifelse(!is.na(movid_i$v2_1)&movid_i$v2_1 == 1, "Sí", "No")
 table(movid_i$v2_efectos)
 
-
 # V2_2 Desarrollo de vacuna (v2_efectos) -----------------------------------
 ## Me preocupa que el desarrollo rápido de la vacuna para el COVID-19 la haga menos segura
 table(movid_i$v2_2)
@@ -954,18 +974,39 @@ movid_i$v2_otra <- ifelse(!is.na(movid_i$v2_6)&movid_i$v2_6 == 1, "Sí", "No")
 table(movid_i$v2_otra)
 table(movid_i$v2_6_esp) # recodificarlas
 
-
 # 4.Merge data ------------------------------------------------------------
-
 # 4.1 Select variables ----------------------------------------------------
-movid_i <- movid_i %>% filter(a5 == 1)
+x <- movid_i %>% 
+  filter(a5 == 1) %>% 
+  select(id_encuesta, orden, region, comuna, entrevistado, factor_expansion, #Identificacion
+         sexo, starts_with("edad"), starts_with("educ"), #Sociodemografica
+         starts_with("prev"), cronicos,
+         cae, cae_covid, ingh_p, nhogar,
+         a4:b3, #Otras sociodemograficas
+         starts_with("c1_"), #Tipos Cronicos
+         starts_with("c2_"), #Salud mental
+         d1,d2, starts_with("d3_snt"), d4,d5,d5_esp, d6,d7,d8, d9, posponer, #Acceso a Salud
+         starts_with("e1_"),starts_with("e2_"), e3, e4, starts_with("e5_posp"), e6,e7,e8,e9,e10, #Acceso a salud no covid
+         f1, f1_horas, f2, f2_horas, 192:208, f6, 209:216, f8, #Sociales
+         g1:g50, # Empleo
+         v1, 221:227) #Vacunas
+
 movid_o <- movid_o %>% filter(a5 == 1)
 
+movid_i_proc <- movid_i %>% 
+  select(id_encuesta, orden, region, comuna, entrevistado, factor_expansion, #Identificacion
+         sexo, starts_with("edad"), starts_with("educ"), #Sociodemografica
+         starts_with("prev"), cronicos,
+         cae, cae_covid, ingh_p, nhogar,
+         a4:b3, #Otras sociodemograficas
+         starts_with("c2_"), #Salud mental
+         f1, f1_horas, f2, f2_horas, 192:208, f6, 209:216, f8, #Sociales
+         v1, 221:227) #Vacunas
+
+
 # 5. Save  -----------------------------------------------------------------
-saveRDS(movid_i, file = "output/data/probando.RDS")
-
-
-# NO CORRER ---------------------------------------------------------------
-#saveRDS(movid_i, file = "output/data/movid_i.RDS")
-saveRDS(movid_o, file = "output/data/movid_o.RDS")
+saveRDS(movid_i, file = "output/data/movid_i.RDS") # MOVID-IMPACT
+saveRDS(movid_o, file = "output/data/movid_o.RDS") # MOVID-ORIGINAL
 save(movid_i,movid_o, file = "output/data/movid_impact.RData")
+saveRDS(movid_i, file = "output/data/movid_i_proc.RDS") #MOVID-INFORME
+
