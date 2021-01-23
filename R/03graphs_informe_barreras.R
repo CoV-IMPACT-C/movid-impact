@@ -106,7 +106,7 @@ data %>%
   ggplot(aes(x = valor, y = prop, fill = valor)) +
   geom_bar(stat = "identity", width = 0.9) +
   geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.2,
-                size = 1.1, color = "black") +
+                size = 1, color = "black") +
   facet_wrap(.~ variable, ncol = 2, labeller = labeller(variable = label)) +
   geom_label(aes(label = paste0(prop, "%")),
              position = position_stack(vjust = .5),
@@ -140,7 +140,7 @@ data %>%
   ggplot(aes(x = valor, y = prop, fill = valor)) +
   geom_bar(stat = "identity", width = 0.9) +
   geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.2,
-                size = 1.1, color = "black") +
+                size = 1, color = "black") +
   facet_wrap(.~ variable, ncol = 2, labeller = labeller(variable = c(f6 = "¿Qué tan peligroso cree que es el coronavirus para usted y sus cercanos?"))) +
   geom_label(aes(label = paste0(prop, "%")),
              position = position_stack(vjust = .5),
@@ -184,7 +184,7 @@ data %>%
   ggplot(aes(x = valor, y = prop, fill = valor)) +
   geom_bar(stat = "identity", width = 0.9) +
   geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.2,
-                size = 1.1, color = "black") +
+                size = 1, color = "black") +
   facet_wrap(.~ variable, ncol = 2, labeller = labeller(variable = c(f5_protect = "Puedo protegerme completamente del coronavirus si tomo las medidas de protección adecuadas"))) +
   geom_label(aes(label = paste0(prop, "%")),
              position = position_stack(vjust = .5),
@@ -226,7 +226,7 @@ data %>%
   ggplot(aes(x = valor, y = prop, fill = valor)) +
   geom_bar(stat = "identity", width = 0.9) +
   geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.2,
-                size = 1.1, color = "black") +
+                size = 1, color = "black") +
   facet_wrap(.~ variable, ncol = 2, labeller = labeller(variable = c(f5_legal = "En Chile, si una persona sale sin permiso durante una cuarentena es muy poco probable que sea controlado y multado de protección adecuadas"))) +
   geom_label(aes(label = paste0(prop, "%")),
              position = position_stack(vjust = .5),
@@ -268,7 +268,7 @@ data %>%
   ggplot(aes(x = valor, y = prop, fill = valor)) +
   geom_bar(stat = "identity", width = 0.9) +
   geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.2,
-                size = 1.1, color = "black") +
+                size = 1, color = "black") +
   facet_wrap(.~ variable, ncol = 2, labeller = labeller(variable = c(f8 = "Grado en que mis cercanos y yo cumplimos las medidas de cuidado"))) +
   geom_label(aes(label = paste0(prop, "%")),
              position = position_stack(vjust = .5),
