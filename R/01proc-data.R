@@ -976,8 +976,22 @@ table(movid_i$v2_6_esp) # recodificarlas
 
 # 4.Merge data ------------------------------------------------------------
 # 4.1 Select variables ----------------------------------------------------
-x <- movid_i %>% 
-  filter(a5 == 1) %>% 
+
+## Para informe
+movid_i_proc <- movid_i %>%
+  filter(a5 == "Entrevistado(a)") %>%
+  select(id_encuesta, orden, region, comuna, entrevistado, factor_expansion, #Identificacion
+         sexo, starts_with("edad"), starts_with("educ"), #Sociodemografica
+         starts_with("prev"), cronicos,
+         cae, cae_covid, ingh_p, nhogar,
+         a4:b3, #Otras sociodemograficas
+         starts_with("c2_"), #Salud mental
+         f1, f1_horas, f2, f2_horas, 192:208, f6, 209:216, f8, #Sociales
+         v1, 221:227) #Vacunas
+
+## Base final
+movid_i <- movid_i %>% 
+  filter(a5 == "Entrevistado(a)") %>% 
   select(id_encuesta, orden, region, comuna, entrevistado, factor_expansion, #Identificacion
          sexo, starts_with("edad"), starts_with("educ"), #Sociodemografica
          starts_with("prev"), cronicos,
@@ -991,22 +1005,12 @@ x <- movid_i %>%
          g1:g50, # Empleo
          v1, 221:227) #Vacunas
 
+## Base original
 movid_o <- movid_o %>% filter(a5 == 1)
-
-movid_i_proc <- movid_i %>% 
-  select(id_encuesta, orden, region, comuna, entrevistado, factor_expansion, #Identificacion
-         sexo, starts_with("edad"), starts_with("educ"), #Sociodemografica
-         starts_with("prev"), cronicos,
-         cae, cae_covid, ingh_p, nhogar,
-         a4:b3, #Otras sociodemograficas
-         starts_with("c2_"), #Salud mental
-         f1, f1_horas, f2, f2_horas, 192:208, f6, 209:216, f8, #Sociales
-         v1, 221:227) #Vacunas
-
 
 # 5. Save  -----------------------------------------------------------------
 saveRDS(movid_i, file = "output/data/movid_i.RDS") # MOVID-IMPACT
-saveRDS(movid_o, file = "output/data/movid_o.RDS") # MOVID-ORIGINAL
+saveRDS(movid_o, file = "output/data/movid_o.RDS") # MOVID-IMPACT-ORIGINAL
 save(movid_i,movid_o, file = "output/data/movid_impact.RData")
-saveRDS(movid_i, file = "output/data/movid_i_proc.RDS") #MOVID-INFORME
+saveRDS(movid_i, file = "output/data/movid_i_proc.RDS") #MOVID-IMPACT-INFORME
 
