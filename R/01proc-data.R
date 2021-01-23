@@ -4,7 +4,7 @@ pacman::p_load(tidyverse)
 
 # 2. Load data  -------------------------------------------
 ## movid_i-19
-movid_o <- haven::read_dta("input/data/210119_base_movid_version01.dta")
+movid_o <- haven::read_dta("input/data/210123_base_movid_version02.dta")
 movid_i <- movid_o
 
 # 3. Recodes -----------------------------------------------------
