@@ -4,6 +4,7 @@ pacman::p_load(tidyverse, summarytools, sjPlot)
 
 # 2. Load data  -------------------------------------------
 ## movid_i-19
+## movid_i-19
 load(file = "output/data/movid_impact.RData")
 
 ## OJO: Corrí toda la sintaxis de 01proc-data.R sobre movid_o para tener una base con todo
@@ -12,6 +13,10 @@ data <- movid_i
 rm(movid_i, movid_o, movid_if8)
 data <- data[data$a5=="Entrevistado(a)",]
 
+## OJO2: Agregue base final (ver si quiere ocupar esta
+## En mi sintaxis tengo opcion de recodificar sin tener que hacerlo nuevamente con fct_reverse
+movid_i_proc <- readRDS(file = "output/data/movid_i_proc.RDS")
+data <- movid_i_proc
 
 # 3. Informe Cuidados  -------------------------------------------
 
