@@ -66,12 +66,12 @@ data <- data %>% mutate_at(vars(starts_with("f7_")),
 
 ### Version sin factores
 label <- c(
-  f7_distance = "Distancia física de 2 metros",
-  f7_social = "Evitar reuniones con más de\n 10 personas en un espacio cerrado",
+  f7_distance = "Distancia física\n de 2 metros",
+  f7_social = "Evitar reuniones\ncon más de 10 personas\nen un espacio cerrado",
   f7_wash = "Lavarse las manos\n durante 20 segundos",
-  f7_mask2 = "Uso mascarilla en lugares cerrados",
-  f4_toque = "Respeto toque de queda",
-  f7_mask = "Uso mascarilla fuera del hogar")
+  f7_mask2 = "Uso mascarilla\nen lugares cerrados",
+  f4_toque = "Respeto\ntoque de queda",
+  f7_mask = "Uso mascarilla\nfuera del hogar")
 
 data %>%
   pivot_longer(cols = c(starts_with("f7_"), f4_toque),
@@ -124,7 +124,7 @@ data %>%
 ### Guardar
 ggsave(plot = last_plot(), filename = "output/figures/figure1.png",
        device = "png",dpi = "retina", units = "cm",
-       width = 25,height = 15)
+       width = 27,height = 15)
 
 
 # Lámina 5: ¿Por qué no nos cuidamos del COVID-19 en Chile? ---------------
