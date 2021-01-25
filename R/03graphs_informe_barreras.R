@@ -4,8 +4,7 @@ pacman::p_load(tidyverse, srvyr, survey)
 
 # 1.1 Set ups -------------------------------------------------------------
 library(ggplot2); theme_set(theme_classic(base_size = 12) + 
-                              theme(legend.position = "bottom",
-                                    legend.box = "horizontal",
+                              theme(legend.position = "none",
                                     text = element_text(size = 12, face = "bold"), strip.text.x = element_text(face = "bold")))
 library(knitr);   options(knitr.kable.NA = 'No sabe/No responde')
 
@@ -22,10 +21,11 @@ data <- data %>% mutate_at(vars(starts_with("f7_")),
                      funs(car::recode(.,'"Siempre" = "Si";
                                       c("Casi siempre","Frecuentemente","A veces","Casi nunca")="No"', as.factor = T,
                           levels = c('No', 'Si')))) %>% # El orden es donde 0 = No, 1 = Si
+  mutate(f4_toque = if_else(f4_toque == "Si", "No", "Si")) %>% # Dar vuelta para entender como "Respeto del toque"
   mutate_at(vars(f4_toque, starts_with("f7_"), starts_with("f3_")),
                            funs(as_factor(.)))  %>%  # Como un factor para no perder etiquetas
-  mutate_at(vars(starts_with("f3_"), starts_with("f5_"), f8), funs(forcats::fct_rev(.)))  # Revertir  los factores de las barreras donde 1 es
-          
+  mutate_at(vars(starts_with("f3_"), starts_with("f5_"), f8), funs(forcats::fct_rev(.))) # Revertir  los factores de las barreras donde 1 es
+
 
 ## Sintesis
 ### 1. Cuidados (f7_*): 1 = No, 2 = Si
@@ -66,12 +66,12 @@ data <- data %>% mutate_at(vars(starts_with("f7_")),
 
 ### Version sin factores
 label <- c(
-  f4_toque = "Respeto toque de queda",
   f7_distance = "Distancia física de 2 metros",
-  f7_mask = "Uso mascarilla fuera del hogar",
+  f7_social = "Evitar reuniones con más de\n 10 personas en un espacio cerrado",
+  f7_wash = "Lavarse las manos\n durante 20 segundos",
   f7_mask2 = "Uso mascarilla en lugares cerrados",
-  f7_social = "Evitar reuniones con más de 10 personas en un espacio cerrado",
-  f7_wash = "Lavarse las manos durante 20 segundos")
+  f4_toque = "Respeto toque de queda",
+  f7_mask = "Uso mascarilla fuera del hogar")
 
 data %>%
   pivot_longer(cols = c(starts_with("f7_"), f4_toque),
@@ -103,17 +103,22 @@ data %>%
   group_by(variable, valor)  %>% 
   summarise(prop = survey_mean(vartype = "ci", na.rm = T)) %>% 
   mutate_at(vars(starts_with("prop")), funs(round(.,4)*100)) %>%
+  filter(valor == "Si") %>% 
+  mutate(variable = factor(variable,levels = c("f7_distance", "f7_social", "f7_wash", "f7_mask2", "f4_toque", "f7_mask"))) %>% 
   ggplot(aes(x = valor, y = prop, fill = valor)) +
-  geom_bar(stat = "identity", width = 0.9) +
-  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.2,
-                size = 1, color = "black") +
-  facet_wrap(.~ variable, ncol = 2, labeller = labeller(variable = label)) +
-  geom_label(aes(label = paste0(prop, "%")),
+  geom_bar(stat = "identity", width = 0.5)  + 
+  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.08,
+                size = 1, color = "black", alpha = 0.4, position = "dodge",
+                linetype = "longdash") +
+  facet_wrap(variable~., nrow = 1, labeller = labeller(variable = label)) +
+  geom_label(aes(label = paste0(round(prop,0), "%")),
              position = position_stack(vjust = .5),
              color="white", size= 4, fontface = "bold",
              show.legend = FALSE) + 
-  labs(x = "", y = "%", title = "")  + scale_fill_jama(name = "", 
-                                    na.value = "grey50")
+  labs(x = "", y = "%", title = "")  +
+  scale_fill_jama(name = "", na.value = "grey50") + 
+  theme(axis.text.x = element_blank(),
+    axis.ticks.x=element_blank())
 
 
 ### Guardar
@@ -137,12 +142,15 @@ data %>%
   group_by(variable, valor)  %>% 
   summarise(prop = survey_mean(vartype = "ci", na.rm = T)) %>% 
   mutate_at(vars(starts_with("prop")), funs(round(.,4)*100)) %>%
-  ggplot(aes(x = valor, y = prop, fill = valor)) +
+  filter(valor != "NS/NR") %>% 
+  mutate(grado = if_else(valor %in% c("Nada peligroso", "Algo peligroso"),"Bajo","Alto" )) %>% 
+  ggplot(aes(x = valor, y = prop, fill = grado)) +
   geom_bar(stat = "identity", width = 0.9) +
-  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.2,
-                size = 1, color = "black") +
+  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.08,
+                size = 1, color = "black", alpha = 0.4, position = "dodge",
+                linetype = "longdash") +
   facet_wrap(.~ variable, ncol = 2, labeller = labeller(variable = c(f6 = "¿Qué tan peligroso cree que es el coronavirus para usted y sus cercanos?"))) +
-  geom_label(aes(label = paste0(prop, "%")),
+  geom_label(aes(label = paste0(round(prop,0), "%")),
              position = position_stack(vjust = .5),
              color="white", size= 4, fontface = "bold",
              show.legend = FALSE) + 
@@ -181,12 +189,15 @@ data %>%
   group_by(variable, valor)  %>% 
   summarise(prop = survey_mean(vartype = "ci", na.rm = T)) %>% 
   mutate_at(vars(starts_with("prop")), funs(round(.,4)*100)) %>%
-  ggplot(aes(x = valor, y = prop, fill = valor)) +
+  filter(valor != "NS/NR") %>% 
+  mutate(grado = if_else(valor %in% c("Muy en desacuerdo", "En desacuerdo"),"Bajo","Alto" )) %>% 
+  ggplot(aes(x = valor, y = prop, fill = grado)) +
   geom_bar(stat = "identity", width = 0.9) +
-  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.2,
-                size = 1, color = "black") +
+  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.08,
+                size = 1, color = "black", alpha = 0.4, position = "dodge",
+                linetype = "longdash") +
   facet_wrap(.~ variable, ncol = 2, labeller = labeller(variable = c(f5_protect = "Puedo protegerme completamente del coronavirus si tomo las medidas de protección adecuadas"))) +
-  geom_label(aes(label = paste0(prop, "%")),
+  geom_label(aes(label = paste0(round(prop,0), "%")),
              position = position_stack(vjust = .5),
              color="white", size= 4, fontface = "bold",
              show.legend = FALSE) + 
@@ -223,12 +234,15 @@ data %>%
   group_by(variable, valor)  %>% 
   summarise(prop = survey_mean(vartype = "ci", na.rm = T)) %>% 
   mutate_at(vars(starts_with("prop")), funs(round(.,4)*100)) %>%
-  ggplot(aes(x = valor, y = prop, fill = valor)) +
+  filter(valor != "NS/NR") %>% 
+  mutate(grado = if_else(valor %in% c("Muy en desacuerdo", "En desacuerdo"),"Bajo","Alto" )) %>% 
+  ggplot(aes(x = valor, y = prop, fill = grado)) +
   geom_bar(stat = "identity", width = 0.9) +
-  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.2,
-                size = 1, color = "black") +
-  facet_wrap(.~ variable, ncol = 2, labeller = labeller(variable = c(f5_legal = "En Chile, si una persona sale sin permiso durante una cuarentena es muy poco probable que sea controlado y multado de protección adecuadas"))) +
-  geom_label(aes(label = paste0(prop, "%")),
+  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.08,
+                size = 1, color = "black", alpha = 0.4, position = "dodge",
+                linetype = "longdash") +
+  facet_wrap(.~ variable, ncol = 2, labeller = labeller(variable = c(f5_legal = "En Chile, si una persona sale sin permiso durante una cuarentena es muy poco probable que sea controlado y multado"))) +
+  geom_label(aes(label = paste0(round(prop,0), "%")),
              position = position_stack(vjust = .5),
              color="white", size= 4, fontface = "bold",
              show.legend = FALSE) + 
@@ -265,12 +279,15 @@ data %>%
   group_by(variable, valor)  %>% 
   summarise(prop = survey_mean(vartype = "ci", na.rm = T)) %>% 
   mutate_at(vars(starts_with("prop")), funs(round(.,4)*100)) %>%
-  ggplot(aes(x = valor, y = prop, fill = valor)) +
+  filter(valor != "NS/NR") %>% 
+  mutate(grado = if_else(valor %in% c("Nada", "Poco", "Algo"),"Bajo","Alto" )) %>% 
+  ggplot(aes(x = valor, y = prop, fill = grado)) +
   geom_bar(stat = "identity", width = 0.9) +
-  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.2,
-                size = 1, color = "black") +
+  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.08,
+                size = 1, color = "black", alpha = 0.4, position = "dodge",
+                linetype = "longdash") +
   facet_wrap(.~ variable, ncol = 2, labeller = labeller(variable = c(f8 = "Grado en que mis cercanos y yo cumplimos las medidas de cuidado"))) +
-  geom_label(aes(label = paste0(prop, "%")),
+  geom_label(aes(label = paste0(round(prop,0), "%")),
              position = position_stack(vjust = .5),
              color="white", size= 4, fontface = "bold",
              show.legend = FALSE) + 
