@@ -30,22 +30,22 @@ pandata %>%
   ggplot(aes(x = Fecha, y = `Casos activos`)) +
   geom_rect(xmin = start, xmax = finish,
             ymin = -Inf, ymax = Inf, color = "transparent",
-            fill = "pink", alpha = 0.01) +
+            fill = "grey60", alpha = 0.009) +
   geom_line(stat = "identity", color = "darkgrey") +
   geom_point(stat = "identity", aes(fill = survey, col = survey)) +
   scale_x_date(date_breaks = "3 week", date_labels = "%d-%m", 
                limits = c(min(pandata$Fecha), presentation)) +
   scale_y_continuous(labels = function(x) format(x, big.mark = ".")) +
   theme_classic(base_size = 20) +
-  geom_text(aes(x = start, y = 25e+3, label = "05-dic"), 
+  geom_text(aes(x = start, y = 25e+3, label = "04-dic"), 
             size = 5, color = "grey32") +
   geom_text(aes(x = finish, y = 25e+3, label = "22-dic"),
                 size = 5, color = "grey32") +
   theme(legend.position = "none",
         panel.grid.minor = element_blank(),
         panel.grid.major.x = element_blank(),
-        axis.title.x = element_blank())
+        axis.title.x = element_blank()) + scale_color_jama()
 
 ## Export plot
-ggsave(filename = "output/figures/movid_impact_context.png", dpi = 500,
+ggsave(filename = "output/figures/figure0.png", dpi = 500,
        width = 8, height = 4.5, scale = 1.8)
