@@ -1,7 +1,14 @@
 # Code 2: Análisis Informe Barreras movid_i-IMPACT ------------------------------------------------------
 # 1. Packages -----------------------------------------------------
 pacman::p_load(tidyverse, summarytools, sjPlot, modelr, purrr, ggeffects,
-               scales)
+               scales, ggsci)
+# 1.1 Set ups -------------------------------------------------------------
+library(ggplot2); theme_set(theme_classic(base_size = 12) + 
+                              theme(legend.position = "none",
+                                    text = element_text(size = 12, face = "bold"), strip.text.x = element_text(face = "bold")))
+library(knitr);   options(knitr.kable.NA = 'No sabe/No responde')
+
+library(survey);  options(survey.lonely.psu = "certainty")
 
 # 2. Import data  -------------------------------------------
 ## movid_i-19
@@ -41,6 +48,7 @@ data <- data %>%
                             labels = c("Secondary", "Technical", "University")),
          trabaja = relevel(g1, ref = "No")
          )
+
 
 data$depre1 <- ifelse(data$c2_3=="Nunca", 0,
                       ifelse(data$c2_3=="Varios días", 1,
@@ -140,7 +148,12 @@ pp_dep <- map_df(models,
   mutate(dv = rep(dv, each = 2),
          x  = fct_relevel(ifelse(x == 0, "Ausencia", "Alto"), "Ausencia"))
 
+## Save
+save(pp_dep, pp_fsc, pp_nrm, pp_prt, pp_rsg, pp_trbj, file = "output/models/model-care.RData")
+
+
 # 5. Plots  -------------------------------------------
+
 plt_pp_prt <- pp_prt %>% 
   ggplot(aes(y = predicted, x = x, ymin = conf.low, ymax = conf.high)) +
   geom_bar(aes(fill = x), stat = "identity", position = "dodge") +
@@ -158,6 +171,8 @@ plt_pp_prt <- pp_prt %>%
 ## Save plot
 ggsave(plt_pp_prt, filename = "output/figures/pred_prob_protect.png",
        dpi = 500, width = 10, height = 6)
+
+
 
 plt_pp_fsc <- pp_fsc %>% 
   ggplot(aes(y = predicted, x = x, ymin = conf.low, ymax = conf.high)) +
