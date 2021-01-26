@@ -5,8 +5,7 @@ pacman::p_load(tidyverse, summarytools, sjPlot, modelr, purrr, ggeffects,
 
 # 2. Import data  -------------------------------------------
 ## movid_i-19
-movid_i_proc <- readRDS(file = "output/data/movid_i_proc.RDS")
-data <- movid_i_proc
+data <- readRDS(file = "output/data/movid_i_proc.RDS")
 
 ## Homologar nombres de variables
 data <- data %>% 
@@ -43,11 +42,32 @@ data <- data %>%
          trabaja = relevel(g1, ref = "No")
          )
 
+data$depre1 <- ifelse(data$c2_3=="Nunca", 0,
+                      ifelse(data$c2_3=="Varios días", 1,
+                             ifelse(data$c2_3=="Más de la mitad de los días", 2,
+                                    ifelse(data$c2_3=="Casi todos los días", 3, NA))))
+
+data$depre2 <- ifelse(data$c2_4=="Nunca", 0,
+                      ifelse(data$c2_4=="Varios días", 1,
+                             ifelse(data$c2_4=="Más de la mitad de los días", 2,
+                                    ifelse(data$c2_4=="Casi todos los días", 3, NA))))
+
+data$sint_dep_p <- data$depre1 + data$depre2
+data$sint_dep_d <- ifelse(data$sint_dep_p>=3, 1,
+                          ifelse(data$sint_dep_p<3, 0, NA))
+
+## Solucionar problema de recodificación de cronicos
+data$cronicos <- ifelse(data$c1_1==0 & data$c1_2==0 & data$c1_3==0 & data$c1_4==0 & data$c1_5==0 & data$c1_6_esp!="artritis", "No", data$cronicos)
+data$cronicos <- ifelse(is.na(data$cronicos) & is.na(data$c1_6_esp) & data$c1_6==1, "No", data$cronicos)
+
+
 # 3. Models data  -------------------------------------------
 # Modelos para predecir cuidados
-predictores <- c("sexo + edad + trabaja + educ_3cat + cronicos + 
-                 barrera_protect + barrera_fisc + barrera_riesgo + 
-                 barrera_normas")
+
+
+predictores <- c("sexo + edad + trabaja + educ_3cat + cronicos +
+                  sint_dep_p + barrera_protect + barrera_fisc + 
+                  barrera_riesgo + barrera_normas")
 
 m_toque  <- glm(as.formula(paste0("cuidado_toque ~", predictores)),
                 data=data, family="binomial")
@@ -70,8 +90,8 @@ tab_model(m_toque, m_manos, m_dist, m_social, m_masc, m_masc2)
 ### Variable `trabaja` is at "Sí" which is not the mode (code issue)
 ### Default intervals are 95% confidence intervals
 models <- list(m_toque, m_manos, m_dist, m_social, m_masc, m_masc2)
-dv <- c("Toque de queda", "Lavado de manos", "Distanciamiento", 
-        "Social", "Mascarilla 1", "Mascarilla 2")
+dv <- c("Respeto toque\nde queda", "Lavado de manos", "Distancia física\nde 2 metros", 
+        "Evitar reuniones de\nmás de 10 personas", "Uso mascarilla\nfuera del hogar", "Uso mascarilla\nen lugares cerrados")
 
 pp_prt <- map_df(models, 
                  ~ggpredict(., terms ="barrera_protect [minmax]",
@@ -112,19 +132,119 @@ pp_trbj <- map_df(models,
   as_tibble() %>% 
   mutate(dv = rep(dv, each = 2))
 
+pp_dep <- map_df(models, 
+                 ~ggpredict(., terms ="sint_dep_p [minmax]",
+                            typical = list(numeric = "median",
+                                           factor = "mode"))) %>%
+  as_tibble() %>% 
+  mutate(dv = rep(dv, each = 2),
+         x  = fct_relevel(ifelse(x == 0, "Ausencia", "Alto"), "Ausencia"))
+
 # 5. Plots  -------------------------------------------
 plt_pp_prt <- pp_prt %>% 
   ggplot(aes(y = predicted, x = x, ymin = conf.low, ymax = conf.high)) +
   geom_bar(aes(fill = x), stat = "identity", position = "dodge") +
   geom_errorbar(stat = "identity", position = "dodge", 
                 width = .33, color = "#8D8680") +
+  geom_text(aes(label = paste0(round(100*predicted, 0), "%")), vjust=4, size=4) +
   scale_fill_manual(values = c("#E69F00", "#D55E00")) +
   facet_wrap(~dv) +
-  theme_classic(base_size = 22) +
+  theme_classic(base_size = 16) +
   scale_y_continuous(labels = percent_format(suffix = "")) +
-  labs(x = "Barrera protect", y = "Probabilidad predicha (%)") +
+  labs(x = "Puedo protegerme del coronavirus si tomo\nlas medidas de protección adecuadas", y = "Probabilidad predicha (%)") +
   theme(legend.position = "none")
+
 
 ## Save plot
 ggsave(plt_pp_prt, filename = "output/figures/pred_prob_protect.png",
+       dpi = 500, width = 10, height = 6)
+
+plt_pp_fsc <- pp_fsc %>% 
+  ggplot(aes(y = predicted, x = x, ymin = conf.low, ymax = conf.high)) +
+  geom_bar(aes(fill = x), stat = "identity", position = "dodge") +
+  geom_errorbar(stat = "identity", position = "dodge", 
+                width = .33, color = "#8D8680") +
+  geom_text(aes(label = paste0(round(100*predicted, 0), "%")), vjust=4, size=4) +
+  scale_fill_manual(values = c("#E69F00", "#D55E00")) +
+  facet_wrap(~dv) +
+  theme_classic(base_size = 16) +
+  scale_y_continuous(labels = percent_format(suffix = "")) +
+  labs(x = "En Chile, si una persona sale sin permiso durante una cuarentena\nes muy poco probable que sea controlado y multado", y = "Probabilidad predicha (%)") +
+  theme(legend.position = "none")
+
+
+## Save plot
+ggsave(plt_pp_fsc, filename = "output/figures/pred_prob_fisc.png",
+       dpi = 500, width = 10, height = 6)
+
+plt_pp_rsg <- pp_rsg %>% 
+  ggplot(aes(y = predicted, x = x, ymin = conf.low, ymax = conf.high)) +
+  geom_bar(aes(fill = x), stat = "identity", position = "dodge") +
+  geom_errorbar(stat = "identity", position = "dodge", 
+                width = .33, color = "#8D8680") +
+  geom_text(aes(label = paste0(round(100*predicted, 0), "%")), vjust=4, size=4) +
+  scale_fill_manual(values = c("#E69F00", "#D55E00")) +
+  facet_wrap(~dv) +
+  theme_classic(base_size = 16) +
+  scale_y_continuous(labels = percent_format(suffix = "")) +
+  labs(x = "¿Qué tan peligroso cree que es el coronavirus\npara usted y sus cercanos?", y = "Probabilidad predicha (%)") +
+  theme(legend.position = "none")
+
+
+## Save plot
+ggsave(plt_pp_rsg, filename = "output/figures/pred_prob_riesgo.png",
+       dpi = 500, width = 10, height = 6)
+
+plt_pp_nrm <- pp_nrm %>% 
+  ggplot(aes(y = predicted, x = x, ymin = conf.low, ymax = conf.high)) +
+  geom_bar(aes(fill = x), stat = "identity", position = "dodge") +
+  geom_errorbar(stat = "identity", position = "dodge", 
+                width = .33, color = "#8D8680") +
+  geom_text(aes(label = paste0(round(100*predicted, 0), "%")), vjust=4, size=4) +
+  scale_fill_manual(values = c("#E69F00", "#D55E00")) +
+  facet_wrap(~dv) +
+  theme_classic(base_size = 16) +
+  scale_y_continuous(labels = percent_format(suffix = "")) +
+  labs(x = "Grado en que mis cercanos y yo cumplimos las medidas de cuidado", y = "Probabilidad predicha (%)") +
+  theme(legend.position = "none")
+
+
+## Save plot
+ggsave(plt_pp_nrm, filename = "output/figures/pred_prob_norma.png",
+       dpi = 500, width = 10, height = 6)
+
+plt_pp_trbj <- pp_trbj %>% 
+  ggplot(aes(y = predicted, x = x, ymin = conf.low, ymax = conf.high)) +
+  geom_bar(aes(fill = x), stat = "identity", position = "dodge") +
+  geom_errorbar(stat = "identity", position = "dodge", 
+                width = .33, color = "#8D8680") +
+  geom_text(aes(label = paste0(round(100*predicted, 0), "%")), vjust=4, size=4) +
+  scale_fill_manual(values = c("#E69F00", "#D55E00")) +
+  facet_wrap(~dv) +
+  theme_classic(base_size = 16) +
+  scale_y_continuous(labels = percent_format(suffix = "")) +
+  labs(x = "Tiene trabajo", y = "Probabilidad predicha (%)") +
+  theme(legend.position = "none")
+
+
+## Save plot
+ggsave(plt_pp_trbj, filename = "output/figures/pred_prob_trabaja.png",
+       dpi = 500, width = 10, height = 6)
+
+plt_pp_dep <- pp_dep %>% 
+  ggplot(aes(y = predicted, x = x, ymin = conf.low, ymax = conf.high)) +
+  geom_bar(aes(fill = x), stat = "identity", position = "dodge") +
+  geom_errorbar(stat = "identity", position = "dodge", 
+                width = .33, color = "#8D8680") +
+  geom_text(aes(label = paste0(round(100*predicted, 0), "%")), vjust=4, size=4) +
+  scale_fill_manual(values = c("#E69F00", "#D55E00")) +
+  facet_wrap(~dv) +
+  theme_classic(base_size = 16) +
+  scale_y_continuous(labels = percent_format(suffix = "")) +
+  labs(x = "Síntomas depresivos", y = "Probabilidad predicha (%)") +
+  theme(legend.position = "none")
+
+
+## Save plot
+ggsave(plt_pp_dep, filename = "output/figures/pred_prob_dep.png",
        dpi = 500, width = 10, height = 6)
