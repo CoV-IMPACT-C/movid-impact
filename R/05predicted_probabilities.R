@@ -14,6 +14,7 @@ library(survey);  options(survey.lonely.psu = "certainty")
 ## movid_i-19
 data <- readRDS(file = "output/data/movid_i_proc.RDS")
 
+
 ## Homologar nombres de variables
 data <- data %>% 
   mutate(
@@ -64,17 +65,11 @@ data$sint_dep_p <- data$depre1 + data$depre2
 data$sint_dep_d <- ifelse(data$sint_dep_p>=3, 1,
                           ifelse(data$sint_dep_p<3, 0, NA))
 
-## Solucionar problema de recodificación de cronicos
-data$cronicos <- ifelse(data$c1_1==0 & data$c1_2==0 & data$c1_3==0 & data$c1_4==0 & data$c1_5==0 & data$c1_6_esp!="artritis", "No", data$cronicos)
-data$cronicos <- ifelse(is.na(data$cronicos) & is.na(data$c1_6_esp) & data$c1_6==1, "No", data$cronicos)
-
-
 # 3. Models data  -------------------------------------------
 # Modelos para predecir cuidados
 
-
-predictores <- c("sexo + edad + trabaja + educ_3cat + cronicos +
-                  sint_dep_p + barrera_protect + barrera_fisc + 
+predictores <- c("sexo + edad + trabaja + educ_3cat + e7 + sint_dep_p + 
+                  barrera_protect + barrera_fisc + 
                   barrera_riesgo + barrera_normas")
 
 m_toque  <- glm(as.formula(paste0("cuidado_toque ~", predictores)),
