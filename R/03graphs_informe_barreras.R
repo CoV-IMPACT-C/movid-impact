@@ -13,6 +13,7 @@ library(survey);  options(survey.lonely.psu = "certainty")
 # 2. Load data  -------------------------------------------
 ## movid_i-19
 movid_i_proc <- readRDS(file = "output/data/movid_i_proc.RDS")
+load(file = "output/models/model-care.RData")
 data <- movid_i_proc
 
 # 3. Recodificaciones para informe ----------------------------------------
@@ -107,9 +108,8 @@ data %>%
   mutate(variable = factor(variable,levels = c("f7_distance", "f7_social", "f7_wash", "f7_mask2", "f4_toque", "f7_mask"))) %>% 
   ggplot(aes(x = valor, y = prop, fill = valor)) +
   geom_bar(stat = "identity", width = 0.5)  + 
-  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.08,
-                size = 1, color = "black", alpha = 0.4, position = "dodge",
-                linetype = "longdash") +
+  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), position = "dodge", 
+                width = .33, color = "#8D8680") +
   facet_wrap(variable~., nrow = 1, labeller = labeller(variable = label)) +
   geom_label(aes(label = paste0(round(prop,0), "%")),
              position = position_stack(vjust = .5),
@@ -127,9 +127,31 @@ ggsave(plot = last_plot(), filename = "output/figures/figure1.png",
        width = 27,height = 15)
 
 
+# Figure 2 ----------------------------------------------------------------
+## Style
+pp_prt %>% 
+  ggplot(aes(y = predicted, x = x, ymin = conf.low, ymax = conf.high)) +
+  geom_bar(aes(fill = x), stat = "identity", position = "dodge") +
+  geom_errorbar(stat = "identity", position = "dodge", 
+                width = .33, color = "#8D8680") +
+  geom_label(aes(label = paste0(round(100*predicted, 0), "%")), fill = "transparent",
+             position = position_stack(vjust = .5),
+             color="white", size= 4, fontface = "bold",
+             show.legend = FALSE) +
+  scale_fill_jama(name = "") +
+  facet_wrap(~dv) +
+  scale_y_continuous(labels = percent_format(suffix = "")) +
+  labs(x = "Puedo protegerme del coronavirus si tomo\nlas medidas de protección adecuadas", y = "Probabilidad predicha (%)") 
+
+## Save plot
+ggsave(plot = last_plot(), filename = "output/figures/figure2.png",
+       device = "png",dpi = "retina", units = "cm",
+       width = 27,height = 15)
+
+
 # Lámina 5: ¿Por qué no nos cuidamos del COVID-19 en Chile? ---------------
 ##Porque no creemos que el COVID-19 sea un peligro real
-# Figura 2 ----------------------------------------------------------------
+# Figura 3 ----------------------------------------------------------------
 ## Indicacion: descriptivo de f6 con todas las categorías de respuesta y un NS/NR
 data %>%
   pivot_longer(cols = starts_with("f6"),
@@ -146,9 +168,8 @@ data %>%
   mutate(grado = if_else(valor %in% c("Nada peligroso", "Algo peligroso"),"Bajo","Alto" )) %>% 
   ggplot(aes(x = valor, y = prop, fill = grado)) +
   geom_bar(stat = "identity", width = 0.9) +
-  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.08,
-                size = 1, color = "black", alpha = 0.4, position = "dodge",
-                linetype = "longdash") +
+  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), position = "dodge", 
+                width = .33, color = "#8D8680") +
   facet_wrap(.~ variable, ncol = 2, labeller = labeller(variable = c(f6 = "¿Qué tan peligroso cree que es el coronavirus para usted y sus cercanos?"))) +
   geom_label(aes(label = paste0(round(prop,0), "%")),
              position = position_stack(vjust = .5),
@@ -159,19 +180,36 @@ data %>%
 
 
 ### Guardar
-ggsave(plot = last_plot(), filename = "output/figures/figure2.png",
+ggsave(plot = last_plot(), filename = "output/figures/figure3.png",
        device = "png",dpi = "retina", units = "cm",
        width = 25,height = 15)
-
 
 
 # Lamina 6: ¿Por qué no nos cuidamos del COVID-19 en Chile? ---------------
 ##Porque no creemos que el COVID-19 sea un peligro real
 
-# Figura 3 ----------------------------------------------------------------
+# Figura 4 ----------------------------------------------------------------
 ## Indicacion: Probabilidades predichas de cumplir "siempre" con cada medida para peligro = 1 y peligro = 5 - 
 ## dejar variables de cuidado donde hay diferencias significativas
 
+pp_rsg %>% 
+  ggplot(aes(y = predicted, x = x, ymin = conf.low, ymax = conf.high)) +
+  geom_bar(aes(fill = x), stat = "identity", position = "dodge") +
+  geom_errorbar(stat = "identity", position = "dodge", 
+                width = .33, color = "#8D8680") +
+  geom_label(aes(label = paste0(round(100*predicted, 0), "%")), position = position_stack(vjust = .5),
+             fill = "transparent",
+             color = "white",
+             size=4,
+             fontface = "bold") +
+  scale_fill_jama(name = "") +
+  facet_wrap(~dv) +
+  scale_y_continuous(labels = percent_format(suffix = "")) +
+  labs(x = "¿Qué tan peligroso cree que es el coronavirus\npara usted y sus cercanos?", y = "Probabilidad predicha (%)")
+
+ggsave(plot = last_plot(), filename = "output/figures/figure4.png",
+       device = "png",dpi = "retina", units = "cm",
+       width = 25,height = 15)
 
 
 # Lamina 7: ¿Por qué no nos cuidamos del COVID-19 en Chile?  --------------
@@ -193,9 +231,8 @@ data %>%
   mutate(grado = if_else(valor %in% c("Muy en desacuerdo", "En desacuerdo"),"Bajo","Alto" )) %>% 
   ggplot(aes(x = valor, y = prop, fill = grado)) +
   geom_bar(stat = "identity", width = 0.9) +
-  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.08,
-                size = 1, color = "black", alpha = 0.4, position = "dodge",
-                linetype = "longdash") +
+  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp),position = "dodge", 
+                width = .33, color = "#8D8680") +
   facet_wrap(.~ variable, ncol = 2, labeller = labeller(variable = c(f5_protect = "Puedo protegerme completamente del coronavirus si tomo las medidas de protección adecuadas"))) +
   geom_label(aes(label = paste0(round(prop,0), "%")),
              position = position_stack(vjust = .5),
@@ -207,21 +244,41 @@ data %>%
 
 
 ### Guardar
-ggsave(plot = last_plot(), filename = "output/figures/figure4.png",
+ggsave(plot = last_plot(), filename = "output/figures/figure5.png",
        device = "png",dpi = "retina", units = "cm",
        width = 25,height = 15)
 
 
 # Lamina 8: ¿Por qué no nos cuidamos del COVID-19 en Chile? ---------------
 ## Porque nos sentimos invencibles
-# Figura 5 ----------------------------------------------------------------
+# Figura 6 ----------------------------------------------------------------
 ## Indicacion: Probabilidades predichas de cumplir "siempre" con cada medida para f5_1 = 1 y f5_1 = 5 - 
 ## dejar variables de cuidado donde hay diferencias significativas
+
+pp_prt %>% 
+  ggplot(aes(y = predicted, x = x, ymin = conf.low, ymax = conf.high)) +
+  geom_bar(aes(fill = x), stat = "identity", position = "dodge") +
+  geom_errorbar(stat = "identity", position = "dodge", 
+                width = .33, color = "#8D8680") +
+  geom_label(aes(label = paste0(round(100*predicted, 0), "%")), position = position_stack(vjust = .5),
+             fill = "transparent",
+             color = "white",
+             size=4,
+             fontface = "bold") +
+  scale_fill_jama(name = "") +
+  facet_wrap(~dv) +
+  scale_y_continuous(labels = percent_format(suffix = "")) +
+  labs(x = "Puedo protegerme del coronavirus si tomo\nlas medidas de protección adecuadas", y = "Probabilidad predicha (%)")
+
+### Guardar
+ggsave(plot = last_plot(), filename = "output/figures/figure6.png",
+       device = "png",dpi = "retina", units = "cm",
+       width = 25,height = 15)
 
 
 # Lamina 9: ¿Por qué no nos cuidamos del COVID-19 en Chile? ----------------------------------------------------------------
 ## Porque no pasará nada si no seguimos las reglas
-# Figura 6 ----------------------------------------------------------------
+# Figura 7 ----------------------------------------------------------------
 ## Indicacion: Descriptivo de f5_5 con todas las categorías de respuesta y un NS/NR
 data %>%
   pivot_longer(cols = starts_with("f5_legal"),
@@ -238,9 +295,8 @@ data %>%
   mutate(grado = if_else(valor %in% c("Muy en desacuerdo", "En desacuerdo"),"Bajo","Alto" )) %>% 
   ggplot(aes(x = valor, y = prop, fill = grado)) +
   geom_bar(stat = "identity", width = 0.9) +
-  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.08,
-                size = 1, color = "black", alpha = 0.4, position = "dodge",
-                linetype = "longdash") +
+  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), position = "dodge", 
+                width = .33, color = "#8D8680") +
   facet_wrap(.~ variable, ncol = 2, labeller = labeller(variable = c(f5_legal = "En Chile, si una persona sale sin permiso durante una cuarentena es muy poco probable que sea controlado y multado"))) +
   geom_label(aes(label = paste0(round(prop,0), "%")),
              position = position_stack(vjust = .5),
@@ -252,21 +308,44 @@ data %>%
 
 
 ### Guardar
-ggsave(plot = last_plot(), filename = "output/figures/figure6.png",
+ggsave(plot = last_plot(), filename = "output/figures/figure7.png",
        device = "png",dpi = "retina", units = "cm",
        width = 25,height = 15)
 
 
 # Lamina 10: ¿Por qué no nos cuidamos del COVID-19 en Chile? --------------
 ## Porque no pasará nada si no seguimos las reglas
-# Figura 7 ----------------------------------------------------------------
+# Figura 8 ----------------------------------------------------------------
 ## Indicacion: probabilidades predichas de cumplir "siempre" con cada medida para f5_5 = 1 y f5_5 = 5 - 
 ## dejar variables de cuidado donde hay diferencias significativas
+
+pp_fsc %>% 
+  ggplot(aes(y = predicted, x = x, ymin = conf.low, ymax = conf.high)) +
+  geom_bar(aes(fill = x), stat = "identity", position = "dodge") +
+  geom_errorbar(stat = "identity", position = "dodge", 
+                width = .33, color = "#8D8680") +
+  geom_label(aes(label = paste0(round(100*predicted, 0), "%")), position = position_stack(vjust = .5),
+             fill = "transparent",
+             color = "white",
+             size=4,
+             fontface = "bold") +
+  scale_fill_jama(name = "") +
+  facet_wrap(~dv) +
+  scale_y_continuous(labels = percent_format(suffix = "")) +
+  labs(x = "En Chile, si una persona sale sin permiso durante una cuarentena\nes muy poco probable que sea controlado y multado", y = "Probabilidad predicha (%)") +
+  theme(legend.position = "none")
+
+
+### Guardar
+ggsave(plot = last_plot(), filename = "output/figures/figure8.png",
+       device = "png",dpi = "retina", units = "cm",
+       width = 25,height = 15)
+
 
 
 # Lamina 11: ¿Por qué no nos cuidamos del COVID-19 en Chile? --------------
 ##  Porque los demás tampoco lo hacen
-# Figura 8 ----------------------------------------------------------------
+# Figura 9 ----------------------------------------------------------------
 ## Indicacion: descriptivo de f8 con todas las categorías de respuesta y un NS/NR
 data %>%
   pivot_longer(cols = starts_with("f8"),
@@ -283,9 +362,8 @@ data %>%
   mutate(grado = if_else(valor %in% c("Nada", "Poco", "Algo"),"Bajo","Alto" )) %>% 
   ggplot(aes(x = valor, y = prop, fill = grado)) +
   geom_bar(stat = "identity", width = 0.9) +
-  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), width = 0.08,
-                size = 1, color = "black", alpha = 0.4, position = "dodge",
-                linetype = "longdash") +
+  geom_errorbar(aes(x = valor, ymin = prop_low, ymax= prop_upp), position = "dodge", 
+                width = .33, color = "#8D8680") +
   facet_wrap(.~ variable, ncol = 2, labeller = labeller(variable = c(f8 = "Grado en que mis cercanos y yo cumplimos las medidas de cuidado"))) +
   geom_label(aes(label = paste0(round(prop,0), "%")),
              position = position_stack(vjust = .5),
@@ -296,17 +374,92 @@ data %>%
   guides(fill = F)
 
 ### Guardar
-ggsave(plot = last_plot(), filename = "output/figures/figure8.png",
+ggsave(plot = last_plot(), filename = "output/figures/figure9.png",
        device = "png",dpi = "retina", units = "cm",
        width = 25,height = 15)
 
 
 # Lamina 12: ¿Por qué no nos cuidamos del COVID-19 en Chile? --------------
 ##  Porque los demás tampoco lo hacen
-# Figura 9 ----------------------------------------------------------------
+# Figura 10 ----------------------------------------------------------------
 ## Indicacion: Probabilidades predichas de cumplir "siempre" con cada medida para f8 = 1 y f8 = 6 - 
 ## dejar variables de cuidado donde hay diferencias significativas
 
+pp_nrm %>% 
+  ggplot(aes(y = predicted, x = x, ymin = conf.low, ymax = conf.high)) +
+  geom_bar(aes(fill = x), stat = "identity", position = "dodge") +
+  geom_errorbar(stat = "identity", position = "dodge", 
+                width = .33, color = "#8D8680") +
+  geom_label(aes(label = paste0(round(100*predicted, 0), "%")), position = position_stack(vjust = .5),
+             fill = "transparent",
+             color = "white",
+             size=4,
+             fontface = "bold") +
+  scale_fill_jama(name = "") +
+  facet_wrap(~dv) +
+  scale_y_continuous(labels = percent_format(suffix = "")) +
+  labs(x = "Grado en que mis cercanos y yo cumplimos las medidas de cuidado", y = "Probabilidad predicha (%)") +
+  theme(legend.position = "none")
+
+
+### Guardar
+ggsave(plot = last_plot(), filename = "output/figures/figure10.png",
+       device = "png",dpi = "retina", units = "cm",
+       width = 25,height = 15)
+
+
+# Lamina 13 - Estructurales -----------------------------------------------
+
+# Figura 11: Trabaja ----------------------------------------------------------------
+
+pp_trbj %>% 
+  ggplot(aes(y = predicted, x = x, ymin = conf.low, ymax = conf.high)) +
+  geom_bar(aes(fill = x), stat = "identity", position = "dodge") +
+  geom_errorbar(stat = "identity", position = "dodge", 
+                width = .33, color = "#8D8680") +
+  geom_label(aes(label = paste0(round(100*predicted, 0), "%")), position = position_stack(vjust = .5),
+             fill = "transparent",
+             color = "white",
+             size=4,
+             fontface = "bold") +
+  scale_fill_jama(name = "") +
+  facet_wrap(~dv) +
+  scale_y_continuous(labels = percent_format(suffix = "")) +
+  labs(x = "Tiene trabajo", y = "Probabilidad predicha (%)") +
+  theme(legend.position = "none")
+
+
+### Guardar
+ggsave(plot = last_plot(), filename = "output/figures/figure11.png",
+       device = "png",dpi = "retina", units = "cm",
+       width = 25,height = 15)
+
+
+# Lamina 14 ---------------------------------------------------------------
+
+# Figura 12 ----------------------------------------------------------------
+
+pp_dep %>% 
+  ggplot(aes(y = predicted, x = x, ymin = conf.low, ymax = conf.high)) +
+  geom_bar(aes(fill = x), stat = "identity", position = "dodge") +
+  geom_errorbar(stat = "identity", position = "dodge", 
+                width = .33, color = "#8D8680") +
+  geom_label(aes(label = paste0(round(100*predicted, 0), "%")), position = position_stack(vjust = .5),
+             fill = "transparent",
+             color = "white",
+             size=4,
+             fontface = "bold") +
+  scale_fill_jama(name = "") +
+  facet_wrap(~dv) +
+  scale_y_continuous(labels = percent_format(suffix = "")) +
+  labs(x = "Síntomas depresivos", y = "Probabilidad predicha (%)") +
+  theme(legend.position = "none")
+
+
+### Guardar
+ggsave(plot = last_plot(), filename = "output/figures/figure12.png",
+       device = "png",dpi = "retina", units = "cm",
+       width = 25,height = 15)
 
 
 # Lamina 13 : ¿Cómo promovemos el respeto a las medidas de cuidado COVID-19? ---------------------------------------------------------------
