@@ -141,7 +141,7 @@ pp_dep <- map_df(models,
                                            factor = "mode"))) %>%
   as_tibble() %>% 
   mutate(dv = rep(dv, each = 2),
-         x  = fct_relevel(ifelse(x == 0, "Ausencia", "Alto"), "Ausencia"))
+         x  = fct_relevel(ifelse(x == 0, "Ausencia", "Altos"), "Ausencia"))
 
 ## Save
 save(pp_dep, pp_fsc, pp_nrm, pp_prt, pp_rsg, pp_trbj, file = "output/models/model-care.RData")
