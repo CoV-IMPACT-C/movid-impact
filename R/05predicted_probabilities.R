@@ -30,6 +30,8 @@ data <- data %>%
     barrera_riesgo  = f6, # escala continua
     barrera_normas  = f8) # invertir orden
 
+
+dfSummary(data$barrera_protect)
 ## Recodificar para modelos
 data <- data %>% 
   mutate(across(c(starts_with("cuidado"), -cuidado_toque), 
@@ -102,7 +104,7 @@ pp_prt <- map_df(models,
                                            factor = "mode"))) %>%
   as_tibble() %>% 
   mutate(dv = rep(dv, each = 2),
-         x  = fct_relevel(ifelse(x == 1, "Bajo", "Alto"), "Bajo"))
+         x  = fct_relevel(ifelse(x == 1, "Alto", "Bajo"), "Bajo"))
 
 pp_fsc <- map_df(models, 
                  ~ggpredict(., terms ="barrera_fisc",
