@@ -946,31 +946,31 @@ table(movid_i$v2_efectos)
 # V2_2 Desarrollo de vacuna (v2_efectos) -----------------------------------
 ## Me preocupa que el desarrollo rápido de la vacuna para el COVID-19 la haga menos segura
 table(movid_i$v2_2)
-movid_i$v2_desarrollo <- ifelse(!is.na(movid_i$v2_2)&movid_i$v2_2 == 1, "Sí", "No")
+movid_i$v2_desarrollo <- ifelse(!is.na(movid_i$v2_2)&movid_i$v2_2 == 2, "Sí", "No")
 table(movid_i$v2_desarrollo)
 
 # V2_3 Efectividad (v2_efectiva) -----------------------------------
 ## No creo que la vacuna sea realmente efectiva contra el COVID-19
 table(movid_i$v2_3)
-movid_i$v2_efectiva <- ifelse(!is.na(movid_i$v2_3)&movid_i$v2_3 == 1, "Sí", "No")
+movid_i$v2_efectiva <- ifelse(!is.na(movid_i$v2_3)&movid_i$v2_3 == 3, "Sí", "No")
 table(movid_i$v2_efectiva)
 
 # V2_4 Contagiarse de COVID con vacuna (v2_contagio) -----------------------------------
 ## El riesgo que yo tengo de contraer COVID-19 es bajo
 table(movid_i$v2_4)
-movid_i$v2_contagio <- ifelse(!is.na(movid_i$v2_4)&movid_i$v2_4 == 1, "Sí", "No")
+movid_i$v2_contagio <- ifelse(!is.na(movid_i$v2_4)&movid_i$v2_4 == 4, "Sí", "No")
 table(movid_i$v2_contagio)
 
 # V2_5 Contra vacunas (v2_antivacuna) -----------------------------------
 ## Estoy en contra de las vacunas en general
 table(movid_i$v2_5)
-movid_i$v2_antivacuna <- ifelse(!is.na(movid_i$v2_5)&movid_i$v2_5 == 1, "Sí", "No")
+movid_i$v2_antivacuna <- ifelse(!is.na(movid_i$v2_5)&movid_i$v2_5 == 5, "Sí", "No")
 table(movid_i$v2_antivacuna)
 
 # V2_6 Otra (v2_otra) -----------------------------------
 ## Otra. Especifique
 table(movid_i$v2_6)
-movid_i$v2_otra <- ifelse(!is.na(movid_i$v2_6)&movid_i$v2_6 == 1, "Sí", "No")
+movid_i$v2_otra <- ifelse(!is.na(movid_i$v2_6)&movid_i$v2_6 == 6, "Sí", "No")
 table(movid_i$v2_otra)
 table(movid_i$v2_6_esp) # recodificarlas
 
