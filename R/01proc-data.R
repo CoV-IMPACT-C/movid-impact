@@ -6,6 +6,7 @@ pacman::p_load(tidyverse)
 ## movid_i-19
 movid_o <- haven::read_dta("input/data/210123_base_movid_version02.dta")
 movid_i <- movid_o
+x <- haven::read_dta("input/data/20210125_base_movid_version_codificada.dta")
 
 # 3. Recodes -----------------------------------------------------
 # Modulo A ----------------------------------------------------------------
@@ -218,6 +219,20 @@ movid_i <- movid_i %>% mutate(cronicos = case_when(c1_1 == 1 ~ 1,
   mutate(cronicos = if_else(cronicos == 1, "Sí", "No"))
 
 table(movid_i$cronicos) ## Artritis
+
+movid_i$cronicos <- ifelse(movid_i$c1_1==0 &
+                             movid_i$c1_2==0 &
+                             movid_i$c1_3==0 &
+                             movid_i$c1_4==0 &
+                             movid_i$c1_5==0 &
+                             movid_i$c1_6_esp!="artritis", "No",
+                           movid_i$cronicos)
+
+movid_i$cronicos <- ifelse(is.na(movid_i$cronicos) &
+                             is.na(movid_i$c1_6_esp) &
+                             movid_i$c1_6==1, "No",
+                           movid_i$cronicos)
+
 
 # C2 Sintomas Salud Mental ----------------------------------------------------------------
 
