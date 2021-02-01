@@ -73,7 +73,7 @@ table(movid_i$a7)
 # 3 categories: High school or less, Technical qualification and University degree
 table(movid_i$a8a)
 movid_i$educ_3cat <- car::recode(movid_i$a8a, c("c(1,2,3,4,5,6)='Media o menos';7='Técnica';c(8,9)='Profesional';99=NA"), as.factor = T,
-                                 levels = c("Media o menos", "Profesional", 'Técnica'))
+                                 levels = c("Media o menos", 'Técnica', "Profesional"))
 
 table(movid_i$educ_3cat)
 
@@ -81,7 +81,7 @@ table(movid_i$educ_3cat)
 # 4 categories: Primary or less, High school,Technical qualification and University degree
 table(movid_i$a8a)
 movid_i$educ_4cat <- car::recode(movid_i$a8a, c("c(1,2,3,4)='Básica o menos';c(5,6)='Media';7='Técnica';c(8,9)='Profesional';99=NA"), as.factor = T,
-                                 levels = c("Básica o menos","Media", "Profesional", 'Técnica'))
+                                 levels = c("Básica o menos","Media", 'Técnica', "Profesional"))
 
 table(movid_i$educ_4cat)
 
@@ -212,7 +212,7 @@ movid_i <- movid_i %>% mutate(cronicos = case_when(c1_1 == 1 ~ 1,
                                                    c1_3 == 1 ~ 1,
                                                    c1_4 == 1 ~ 1,
                                                    c1_5 == 1 ~ 1,
-                                                   c1_6_esp == "artritis" ~ 1,
+                                                   c1_6_esp %in% c("artritis", "artritis reumatoide, fibromialgia") ~ 1,
                                                    c1_7 == 1 ~ 0,
                                                    c1_8 == 1 ~ NA_real_,
                                                    c1_9 == 1 ~ NA_real_)) %>%
@@ -225,6 +225,7 @@ movid_i$cronicos <- ifelse(movid_i$c1_1==0 &
                              movid_i$c1_3==0 &
                              movid_i$c1_4==0 &
                              movid_i$c1_5==0 &
+                             movid_i$c1_6_esp!= "artritis reumatoide, fibromialgia" &
                              movid_i$c1_6_esp!="artritis", "No",
                            movid_i$cronicos)
 
@@ -232,6 +233,7 @@ movid_i$cronicos <- ifelse(is.na(movid_i$cronicos) &
                              is.na(movid_i$c1_6_esp) &
                              movid_i$c1_6==1, "No",
                            movid_i$cronicos)
+
 
 
 # C2 Sintomas Salud Mental ----------------------------------------------------------------
