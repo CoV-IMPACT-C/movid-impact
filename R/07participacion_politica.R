@@ -3,12 +3,9 @@
 pacman::p_load(tidyverse, summarytools, sjPlot)
 
 # 2. Load data  -------------------------------------------
-data <- read.csv("20210125_base_movid_version_codificada.csv", encoding="UTF-8", stringsAsFactors = T)
-data <- data[data$a5=="Entrevistado",]
+data <- readRDS(file = "output/data/movid_i.RDS")
 
-table(data$protesta)
-str(data$f5_1)
-
+# 3. Recoding
 data <- data %>% 
   mutate(disp_protesta = case_when(
     f5_1 == "De acuerdo" ~ 1,
@@ -60,14 +57,14 @@ data <- data %>%
     )
 
 
-# Descriptivos
+# 4. Descriptivos
 
 prop.table(table(data$protesta))
 prop.table(table(data$comunitaria_dar))
 prop.table(table(data$comunitaria_recibir))
 prop.table(table(data$disp_protesta))
 
-# Modelos para predecir participación
+# 5. Modelos para predecir participación
 
 lm1 <- glm(protesta ~ sexo + edad  + cae + cambio_ingreso, data=data, family="binomial")
 lm2 <- glm(protesta ~ sexo + edad  + cae + cambio_ingreso + riesgo + desigualdad + gobierno_bienestar + obediencia, data=data, family="binomial")
@@ -75,11 +72,8 @@ lm2 <- glm(protesta ~ sexo + edad  + cae + cambio_ingreso + riesgo + desigualdad
 lm3 <- glm(comunitaria_dar ~ sexo + edad  + cae + cambio_ingreso, data=data, family="binomial")
 lm4 <- glm(comunitaria_dar ~ sexo + edad  + cae + cambio_ingreso + riesgo + desigualdad + gobierno_bienestar  + obediencia, data=data, family="binomial")
 
-lm5 <- glm(comunitaria_recibir ~ sexo + edad  + cae + cambio_ingreso, data=data, family="binomial")
-lm6 <- glm(comunitaria_recibir ~ sexo + edad  + cae + cambio_ingreso + riesgo + desigualdad + gobierno_bienestar  + obediencia, data=data, family="binomial")
+lm5 <- glm(disp_protesta ~ sexo + edad  + cae + cambio_ingreso, data=data, family="binomial")
+lm6 <- glm(disp_protesta ~ sexo + edad  + cae + cambio_ingreso + riesgo + desigualdad + gobierno_bienestar  + obediencia, data=data, family="binomial")
 
-lm7 <- glm(disp_protesta ~ sexo + edad  + cae + cambio_ingreso, data=data, family="binomial")
-lm8 <- glm(disp_protesta ~ sexo + edad  + cae + cambio_ingreso + riesgo + desigualdad + gobierno_bienestar  + obediencia, data=data, family="binomial")
-
-tab_model(lm1, lm2, lm3, lm4, lm5, lm6, lm7, lm8)
+tab_model(lm1, lm2, lm3, lm4, lm5, lm6)
 
