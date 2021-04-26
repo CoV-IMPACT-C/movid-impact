@@ -4,9 +4,8 @@ pacman::p_load(tidyverse)
 
 # 2. Load data  -------------------------------------------
 ## movid_i-19
-movid_o <- haven::read_dta("input/data/210123_base_movid_version02.dta")
-movid_i <- movid_o
-x <- haven::read_dta("input/data/20210125_base_movid_version_codificada.dta")
+movid_o <- haven::read_dta("input/data/20210125_base_movid_version_codificada.dta")
+movid_i <- haven::read_dta("input/data/20210125_base_movid_version_codificada.dta")
 
 # 3. Recodes -----------------------------------------------------
 # Modulo A ----------------------------------------------------------------
@@ -203,7 +202,6 @@ movid_i$c1_7 <- ifelse(is.na(movid_i$c1_7), 0, 1)
 movid_i$c1_8 <- ifelse(is.na(movid_i$c1_8), 0, 1)
 movid_i$c1_9 <- ifelse(is.na(movid_i$c1_9), 0, 1)
 
-
 # Health risk: arterial hypertension, obesity, diabetes, chronic respiratory diseases (asthma, emphysema or other), cardiovascular diseases, active cancer, chronic kidney disease or immunodeficiencies
 ## Health risk General
 table(movid_i$c1_9)
@@ -211,7 +209,6 @@ movid_i <- movid_i %>% mutate(cronicos = case_when(c1_1 == 1 ~ 1,
                                                    c1_2 == 1 ~ 1,
                                                    c1_3 == 1 ~ 1,
                                                    c1_4 == 1 ~ 1,
-                                                   c1_5 == 1 ~ 1,
                                                    c1_6_esp %in% c("artritis", "artritis reumatoide, fibromialgia") ~ 1,
                                                    c1_7 == 1 ~ 0,
                                                    c1_8 == 1 ~ NA_real_,
@@ -224,7 +221,6 @@ movid_i$cronicos <- ifelse(movid_i$c1_1==0 &
                              movid_i$c1_2==0 &
                              movid_i$c1_3==0 &
                              movid_i$c1_4==0 &
-                             movid_i$c1_5==0 &
                              movid_i$c1_6_esp!= "artritis reumatoide, fibromialgia" &
                              movid_i$c1_6_esp!="artritis", "No",
                            movid_i$cronicos)
@@ -1018,9 +1014,9 @@ movid_i <- movid_i %>%
          starts_with("c2_"), #Salud mental
          d1,d2, starts_with("d3_snt"), d4,d5,d5_esp, d6,d7,d8, d9, posponer, #Acceso a Salud
          starts_with("e1_"),starts_with("e2_"), e3, e4, starts_with("e5_posp"), e6,e7,e8,e9,e10, #Acceso a salud no covid
-         f1, f1_horas, f2, f2_horas, 192:208, f6, 209:216, f8, #Sociales
+         f1, f1_horas, f2, f2_horas, 200:216, f6, 217:224, f8, #Sociales
          g1:g50, # Empleo
-         v1, 221:227) #Vacunas
+         v1, 229:235) #Vacunas
 
 ## Base original
 movid_o <- movid_o %>% filter(a5 == 1)
