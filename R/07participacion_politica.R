@@ -8,11 +8,11 @@ data <- readRDS(file = "output/data/movid_o.RDS")
 # 3. Recoding
 data <- data %>% 
   mutate(disp_protesta = case_when(
-    f5_1 == 4 ~ 1,
-    f5_1 == 2 ~ 0,
-    f5_1 == 3 ~ 0,
-    f5_1 == 5 ~ 1,
-    f5_1 == 1 ~ 0),
+    f5_6 == 4 ~ 1,
+    f5_6 == 2 ~ 0,
+    f5_6 == 3 ~ 0,
+    f5_6 == 5 ~ 1,
+    f5_6 == 1 ~ 0),
     protesta = case_when(
       f4_1 == 1 ~ 1,
       f4_1 == 2 ~ 0),
@@ -76,4 +76,8 @@ lm5 <- glm(disp_protesta ~ sexo + edad  + cae + cambio_ingreso, data=data, famil
 lm6 <- glm(disp_protesta ~ sexo + edad  + cae + cambio_ingreso + riesgo + desigualdad + gobierno_bienestar  + obediencia, data=data, family="binomial")
 
 tab_model(lm1, lm2, lm3, lm4, lm5, lm6)
+tab_model(lm2, lm4, lm6)
 
+names(data)
+
+table(data$region)
