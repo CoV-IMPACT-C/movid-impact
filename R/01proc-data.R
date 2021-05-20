@@ -599,7 +599,7 @@ movid_i$e10 <- car::recode(movid_i$e10, c("1='No me han dado hora para acceder a
                                      'Otra razón'))
 table(movid_i$e10)
 
-# Modulo F. Acceso social a la pandemia ----------------------------------------------------------------
+# Modulo F. Impacto social de la pandemia ----------------------------------------------------------------
 movid_i <- movid_i %>% mutate_at(vars(starts_with("f"), -ends_with("_esp")), funs(as.numeric(.)))
 
 # F1. Reproduccion  ------------------------------------------------------------
@@ -628,31 +628,31 @@ movid_i$f2_horas <- as.numeric(movid_i$f2_horas)
 # F3. Percepciones y legitimidad  -----------------------------------------------
 # F3_1 Percepcion desigualdad f3_desigualdad  ---------------------------------------------
 table(movid_i$f3_1)
-movid_i$f3_desigualdad <- car::recode(movid_i$f3_1, c("1='Muy de acuerdo';2='De acuerdo';3='Indiferente';4='En desacuerdo';5='Muy en desacuerdo';c(8,9)=NA"), as.factor = T,
-                                    levels = c("Muy de acuerdo", "De acuerdo", "Indiferente", "En desacuerdo", "Muy en desacuerdo"))
+movid_i$f3_desigualdad <- car::recode(movid_i$f3_1, c("1='Muy en desacuerdo';2='En desacuerdo';3='Indiferente';4='De acuerdo';5='Muy de acuerdo';c(8,9)=NA"), as.factor = T,
+                                    levels = c("Muy en desacuerdo", "En desacuerdo", "Indiferente", "De acuerdo", "Muy de acuerdo"))
 table(movid_i$f3_desigualdad)
 
 # F3_2 Intereses del gobierno f3_bienestar  ---------------------------------------------
 table(movid_i$f3_2)
-movid_i$f3_bienestar <- car::recode(movid_i$f3_2, c("1='Muy de acuerdo';2='De acuerdo';3='Indiferente';4='En desacuerdo';5='Muy en desacuerdo';c(8,9)=NA"), as.factor = T,
-                                      levels = c("Muy de acuerdo", "De acuerdo", "Indiferente", "En desacuerdo", "Muy en desacuerdo"))
+movid_i$f3_bienestar <- car::recode(movid_i$f3_2, c("1='Muy en desacuerdo';2='En desacuerdo';3='Indiferente';4='De acuerdo';5='Muy de acuerdo';c(8,9)=NA"), as.factor = T,
+                                    levels = c("Muy en desacuerdo", "En desacuerdo", "Indiferente", "De acuerdo", "Muy de acuerdo"))
 table(movid_i$f3_bienestar)
 # F3_3 Legitimidad f3_obedecer ----------------------------------------------------
 ###Aunque a veces no estemos de acuerdo con las autoridades sanitarias y las medidas que se proponen, es nuestro deber seguir sus indicaciones al pie de la letra.
 table(movid_i$f3_3)
-movid_i$f3_obedecer <- car::recode(movid_i$f3_3, c("1='Muy de acuerdo';2='De acuerdo';3='Indiferente';4='En desacuerdo';5='Muy en desacuerdo';c(8,9)=NA"), as.factor = T,
-                                     levels = c("Muy de acuerdo", "De acuerdo", "Indiferente", "En desacuerdo", "Muy en desacuerdo"))
+movid_i$f3_obedecer <- car::recode(movid_i$f3_3, c("1='Muy en desacuerdo';2='En desacuerdo';3='Indiferente';4='De acuerdo';5='Muy de acuerdo';c(8,9)=NA"), as.factor = T,
+                                   levels = c("Muy en desacuerdo", "En desacuerdo", "Indiferente", "De acuerdo", "Muy de acuerdo"))
 table(movid_i$f3_obedecer)
 
 # F3_4 Medidas gobierno f3_gob ---------------------------------------------------
 table(movid_i$f3_4)
-movid_i$f3_gob <- car::recode(movid_i$f3_4, c("1='Muy de acuerdo';2='De acuerdo';3='Indiferente';4='En desacuerdo';5='Muy en desacuerdo';c(8,9)=NA"), as.factor = T,
-                                levels = c("Muy de acuerdo", "De acuerdo", "Indiferente", "En desacuerdo", "Muy en desacuerdo"))
+movid_i$f3_gob <- car::recode(movid_i$f3_4, c("1='Muy en desacuerdo';2='En desacuerdo';3='Indiferente';4='De acuerdo';5='Muy de acuerdo';c(8,9)=NA"), as.factor = T,
+                              levels = c("Muy en desacuerdo", "En desacuerdo", "Indiferente", "De acuerdo", "Muy de acuerdo"))
 table(movid_i$f3_gob)
 # F3_5 Castigo f3_castigo ---------------------------------------------------
 table(movid_i$f3_5)
-movid_i$f3_castigo <- car::recode(movid_i$f3_5, c("1='Muy de acuerdo';2='De acuerdo';3='Indiferente';4='En desacuerdo';5='Muy en desacuerdo';c(8,9)=NA"), as.factor = T,
-                              levels = c("Muy de acuerdo", "De acuerdo", "Indiferente", "En desacuerdo", "Muy en desacuerdo"))
+movid_i$f3_castigo <- car::recode(movid_i$f3_5, c("1='Muy en desacuerdo';2='En desacuerdo';3='Indiferente';4='De acuerdo';5='Muy de acuerdo';c(8,9)=NA"), as.factor = T,
+                                  levels = c("Muy en desacuerdo", "En desacuerdo", "Indiferente", "De acuerdo", "Muy de acuerdo"))
 table(movid_i$f3_castigo)
 
 # F4. Accion colectiva y comunitaria ---------------------------------------------------
@@ -683,46 +683,46 @@ table(movid_i$f4_toque)
 # F5_1. Poder protegerse  (f5_protect) --------------------------------------------
 ### Puedo protegerme completamente del coronavirus si tomo las medidas de protección adecuadas.
 table(movid_i$f5_1)
-movid_i$f5_protect <- car::recode(movid_i$f5_1, c("1='Muy de acuerdo';2='De acuerdo';3='Indiferente';4='En desacuerdo';5='Muy en desacuerdo';c(8,9)=NA"), as.factor = T,
-                            levels = c("Muy de acuerdo", "De acuerdo", "Indiferente", "En desacuerdo", "Muy en desacuerdo"))
+movid_i$f5_protect <- car::recode(movid_i$f5_1, c("1='Muy en desacuerdo';2='En desacuerdo';3='Indiferente';4='De acuerdo';5='Muy de acuerdo';c(8,9)=NA"), as.factor = T,
+                                  levels = c("Muy en desacuerdo", "En desacuerdo", "Indiferente", "De acuerdo", "Muy de acuerdo"))
 
 table(movid_i$f5_protect)
 # F5_2. Inform  (f5_inform) --------------------------------------------
 ### Me informo constantemente sobre los avances del coronavirus y sus efectos en Chile
 table(movid_i$f5_2)
-movid_i$f5_inform <- car::recode(movid_i$f5_2, c("1='Muy de acuerdo';2='De acuerdo';3='Indiferente';4='En desacuerdo';5='Muy en desacuerdo';c(8,9)=NA"), as.factor = T,
-                            levels = c("Muy de acuerdo", "De acuerdo", "Indiferente", "En desacuerdo", "Muy en desacuerdo"))
+movid_i$f5_inform <- car::recode(movid_i$f5_2, c("1='Muy en desacuerdo';2='En desacuerdo';3='Indiferente';4='De acuerdo';5='Muy de acuerdo';c(8,9)=NA"), as.factor = T,
+                                 levels = c("Muy en desacuerdo", "En desacuerdo", "Indiferente", "De acuerdo", "Muy de acuerdo"))
 
 table(movid_i$f5_inform)
 
 # F5_3. Care motivation  (f5_motivacion) --------------------------------------------
 ### A medida que ha avanzado la crisis sanitaria, me siento cada vez más desmotivado para seguir las medidas de protección recomendadas (f5_3)
 table(movid_i$f5_3)
-movid_i$f5_motivacion <- car::recode(movid_i$f5_3, c("1='Muy de acuerdo';2='De acuerdo';3='Indiferente';4='En desacuerdo';5='Muy en desacuerdo';c(8,9)=NA"), as.factor = T,
-                            levels = c("Muy de acuerdo", "De acuerdo", "Indiferente", "En desacuerdo", "Muy en desacuerdo"))
+movid_i$f5_motivacion <- car::recode(movid_i$f5_3, c("1='Muy en desacuerdo';2='En desacuerdo';3='Indiferente';4='De acuerdo';5='Muy de acuerdo';c(8,9)=NA"), as.factor = T,
+                                     levels = c("Muy en desacuerdo", "En desacuerdo", "Indiferente", "De acuerdo", "Muy de acuerdo"))
 
 table(movid_i$f5_motivacion)
 
 # F5_4. Dificult protect  (f5_protect) --------------------------------------------
 ### Resulta cada vez más difícil seguir las medidas de protección sin que esto afecte de manera negativa mi vida (f5_4)
 table(movid_i$f5_4)
-movid_i$f5_difprotect <- car::recode(movid_i$f5_4, c("1='Muy de acuerdo';2='De acuerdo';3='Indiferente';4='En desacuerdo';5='Muy en desacuerdo';c(8,9)=NA"), as.factor = T,
-                            levels = c("Muy de acuerdo", "De acuerdo", "Indiferente", "En desacuerdo", "Muy en desacuerdo"))
+movid_i$f5_difprotect <- car::recode(movid_i$f5_4, c("1='Muy en desacuerdo';2='En desacuerdo';3='Indiferente';4='De acuerdo';5='Muy de acuerdo';c(8,9)=NA"), as.factor = T,
+                                     levels = c("Muy en desacuerdo", "En desacuerdo", "Indiferente", "De acuerdo", "Muy de acuerdo"))
 
 table(movid_i$f5_difprotect)
 
 # F5_5. Legal enforcement  (f5_legal) --------------------------------------------
 ### En Chile, si una persona sale sin permiso durante una cuarentena es muy poco probable que sea controlado y multado.
 table(movid_i$f5_5)
-movid_i$f5_legal <- car::recode(movid_i$f5_5, c("1='Muy de acuerdo';2='De acuerdo';3='Indiferente';4='En desacuerdo';5='Muy en desacuerdo';c(8,9)=NA"), as.factor = T,
-                                   levels = c("Muy de acuerdo", "De acuerdo", "Indiferente", "En desacuerdo", "Muy en desacuerdo"))
+movid_i$f5_legal <- car::recode(movid_i$f5_5, c("1='Muy en desacuerdo';2='En desacuerdo';3='Indiferente';4='De acuerdo';5='Muy de acuerdo';c(8,9)=NA"), as.factor = T,
+                                levels = c("Muy en desacuerdo", "En desacuerdo", "Indiferente", "De acuerdo", "Muy de acuerdo"))
 
 table(movid_i$f5_legal)
 
 # F5_6. Willigness to protest  (f5_protesta) --------------------------------------------
 ### Incluso considerando la situación sanitaria, estoy dispuesto/a a participar en manifestaciones masivas en este momento.
-movid_i$f5_protesta <- car::recode(movid_i$f5_6, c("1='Muy de acuerdo';2='De acuerdo';3='Indiferente';4='En desacuerdo';5='Muy en desacuerdo';c(8,9)=NA"), as.factor = T,
-                            levels = c("Muy de acuerdo", "De acuerdo", "Indiferente", "En desacuerdo", "Muy en desacuerdo"))
+movid_i$f5_protesta <- car::recode(movid_i$f5_6, c("1='Muy en desacuerdo';2='En desacuerdo';3='Indiferente';4='De acuerdo';5='Muy de acuerdo';c(8,9)=NA"), as.factor = T,
+                                   levels = c("Muy en desacuerdo", "En desacuerdo", "Indiferente", "De acuerdo", "Muy de acuerdo"))
 
 table(movid_i$f5_protesta)
 
