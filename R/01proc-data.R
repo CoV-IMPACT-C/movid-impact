@@ -823,9 +823,19 @@ table(movid_i$cae_covid)
 ###g47 (ingresos = ingresos autonomos + transferencias)
 ### No excluí a los 7 casos que ganan 0
 hogares <- movid_i %>% group_by(id_encuesta) %>% summarise(nhogar = n())
-movid_i <- movid_i %>% mutate(g47 = if_else(g47 == 1, 1, NA_real_)) %>% 
-  merge(hogares, by = "id_encuesta", all.x = T) %>% 
-  mutate(ingh_p =  g47_monto/nhogar)
+movid_i <- movid_i %>% mutate (ingh_tr = case_when(g48 == 1 ~ 200000,
+                                                   g48 == 2 ~ 275000,
+                                                   g48 == 3 ~ 425500,
+                                                   g48 == 4 ~ 650500,
+                                                   g48 == 5 ~ 1000500,
+                                                   g48 == 6 ~ 1600500,
+                                                   g48 == 7 ~ 3500000,
+                                                   g48 == 8 ~ 5000000,
+                                                   TRUE ~ NA_real_)) %>% 
+                        mutate(ingh = ifelse(g47 == 1, g47_monto, ifelse(g47 == 9, ingh_tr, NA))) %>% 
+                        merge(hogares, by = "id_encuesta", all.x = T) %>% 
+                        mutate(ingh_p =  ingh/nhogar, ingh_p_log = log(ingh_p+1))  
+                        
 
 # Condicion de Actividad Economica (CAE) ----------------------------------------
 # G1 Trabajar -------------------------------------------------------------
@@ -996,11 +1006,11 @@ movid_i_proc <- movid_i %>%
   select(id_encuesta, orden, region, comuna, entrevistado, factor_expansion, #Identificacion
          sexo, starts_with("edad"), starts_with("educ"), #Sociodemografica
          starts_with("prev"), cronicos,
-         cae, cae_covid, ingh_p, nhogar,
+         cae, cae_covid, ingh_p, nhogar, ingh_p_log,
          a4:b3, #Otras sociodemograficas
          starts_with("c2_"), #Salud mental
-         f1, f1_horas, f2, f2_horas, 192:208, f6, 209:216, f8, #Sociales
-         v1, 221:227) #Vacunas
+         f1, f1_horas, f2, f2_horas, 200:216, f6, 217:224, f8, #Sociales
+         v1, 232:238) #Vacunas
 
 ## Base final
 movid_i <- movid_i %>% 
@@ -1016,7 +1026,7 @@ movid_i <- movid_i %>%
          starts_with("e1_"),starts_with("e2_"), e3, e4, starts_with("e5_posp"), e6,e7,e8,e9,e10, #Acceso a salud no covid
          f1, f1_horas, f2, f2_horas, 200:216, f6, 217:224, f8, #Sociales
          g1:g50, # Empleo
-         v1, 229:235) #Vacunas
+         v1, 232:238) #Vacunas
 
 ## Base original
 movid_o <- movid_o %>% filter(a5 == 1)
