@@ -1018,7 +1018,7 @@ movid_i <- movid_i %>%
   select(id_encuesta, orden, region, comuna, entrevistado, factor_expansion, #Identificacion
          sexo, starts_with("edad"), starts_with("educ"), #Sociodemografica
          starts_with("prev"), cronicos,
-         cae, cae_covid, ingh_p, nhogar,
+         cae, cae_covid, ingh_p, nhogar, ingh_p_log,
          a4:b3, #Otras sociodemograficas
          starts_with("c1_"), #Tipos Cronicos
          starts_with("c2_"), #Salud mental
