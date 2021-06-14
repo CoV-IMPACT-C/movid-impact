@@ -71,6 +71,32 @@ pasos$comuna <- tolower(stringi::stri_trans_general(pasos$comuna,"Latin-ASCII"))
 
 
 # 4 Export --------------------------------------------------------
-lockdowns_movid_impact <- pasos; remove(pasos) 
-saveRDS(lockdowns_movid_impact, "output/data/lockdowns_movid_impact.RDS")
+lockdowns <- pasos; remove(pasos) 
+saveRDS(lockdowns, "output/data/lockdowns_movid_impact.RDS")
+
+
+# 2.9 Lockdown  ------------------------------------- -------------------------
+## Comuna ------------------------------------------------------------------
+lockdowns <- lockdowns %>% rename(COMUNA = comuna)
+
+## Recordar que se les pregunta por la semana anterior
+## (encuestados entre semana 49 y 51, se les pregunta por 48 a 50)
+##Op A
+x <- data %>% mutate(CUT = as.numeric(comuna),
+                        date = as.Date("2020-12-4"),
+                        semana=lubridate::week(date))
+##Op B
+data <- data %>% mutate(CUT = as.numeric(comuna)) %>% 
+  left_join(lockdowns, by = "CUT") %>% 
+  filter(semana %in% c(48:51))  %>%
+  group_by(id_encuesta) %>% 
+  filter(fasewk_lag1 == min(fasewk_lag1)) %>%   #Compliace consult by "IN the last week"
+  distinct(id_encuesta, .keep_all = T) %>% 
+  mutate(lockdown = if_else(fasewk_lag1 %in% c(1,2), "Yes","No"),
+         lockdown = factor(lockdown, levels = c("No", "Yes")))
+
+## Se crea variable lockdown que indica si
+## El respondente estuvo en alguna cuarentena o no (fase 1 o 2)
+## durante la semana anterior a la respuest, debido a que cumplimiento
+## Se consulta respecto a la última semana. 
 
