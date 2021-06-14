@@ -11,8 +11,21 @@ movidi %>%
          cronicos, covid_pos, salud_autop, dist_social, no_reunion,
          riesgo, desigualdad, gobierno_bienestar, obediencia) %>% 
   dfSummary(., valid.col = F, graph.col = F)
-  
+
+## Subset listwise dataset
+movidi <- movidi %>% 
+  select(protesta, disp_protesta, sexo, edad, educ, cambing, lning,
+         cronicos, covid_pos, salud_autop, dist_social, no_reunion,
+         riesgo, desigualdad, gobierno_bienestar, obediencia,
+         cae, cambing) %>% 
+  na.omit()
+
 # 5. Models for protest and disposition to protest
+## Set reference levels
+movidi$cae <- relevel(factor(movidi$cae), ref = "Ocupado")
+movidi$cambing <- relevel(factor(movidi$cambing), ref = "Ha subido")
+movidi$covid_pos <- relevel(factor(movidi$covid_pos), ref = "No")
+
 preds0 <- paste(c("sexo", "edad",  "educ", "cae", "cambing", "lning"),
                 collapse = " + ")
 preds1 <- paste(c("sexo", "edad",  "educ", "cae", "cambing", "lning", 
@@ -43,7 +56,18 @@ m_disp2 <- glm(formula(paste("disp_protesta ~", preds2)),
 
 # Compare models of disposition to protest
 
-
-
-
+# Full models comparison
+prdlbl <- c("Intercept", "Female", "Age", "High school ed.", "Professional ed.",
+            "Technical ed.", "Unemployed", "Inactive", "Income decrease", 
+            "Income stable", "Income (log)", "Chronic disease", "COVID disease", 
+            "Health", "Social distancing", "No meetings", "Perceived risks", 
+            "Pand. inequality", "Govt. wellbeing", "Compliance")
+tab_model(m_prot0, m_disp0,
+          m_prot1, m_disp1,
+          m_prot2, m_disp2,
+          show.ci = F, show.se = T,
+          string.est = "OR", string.se = "SE",
+          dv.labels = rep(c("Protest", "Disp. protest"), 3),
+          pred.labels = prdlbl, auto.label = FALSE,
+          file = "output/tables/table1_models.html")
 
